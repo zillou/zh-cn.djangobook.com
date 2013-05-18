@@ -5,11 +5,11 @@
 {% macro nav() %}
 <div class="nav">
     {% if prev %}
-        <a href='{{ prev.link }}'>&laquo; previous</a> &loz;
+        <a href='{{ prev.link }}'>&laquo; 上一章</a> &loz;
     {% endif %}
-    <a href="{{ pathto('index') }}">table of contents</a>
+    <a href="{{ pathto('index') }}">回到目录</a>
     {% if next %}
-        &loz; <a href='{{ next.link }}'>next &raquo;</a>
+        &loz; <a href='{{ next.link }}'>下一章 &raquo;</a>
     {% endif %}
 </div>
 {% endmacro %}
