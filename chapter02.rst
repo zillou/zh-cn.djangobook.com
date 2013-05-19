@@ -1,99 +1,81 @@
 ==========================
-Chapter 2: Getting Started
+第二章: 入门
 ==========================
 
-Installing Django is a multi-step process, due to the multiple moving parts in
-modern Web development environments. In this chapter, we'll walk you through
-how to install the framework and its few dependencies.
+由于现代Web开发环境由多个部件组成，安装Django需要几个步骤。这一章，我们将演示如何安装Django和
+他的一些依赖。
 
-Because Django is "just" Python code, it runs anywhere Python does -- including
-on some cell phones! But this chapter just covers the common scenarios for
-Django installations. We'll assume you're installing it either on a
-desktop/laptop machine or a server.
+因为Django就是Python代码，所以他可以运行在任何Python可以运行的环境，甚至是手机上！但是本章只
+介绍安装在桌面/笔记本或服务器上安装Django这种最普遍的情况，
 
-Later, in Chapter 12, we'll cover how to deploy Django to a production site.
+稍后，我们会在 第12章_ 介绍如何部署Django站点。
 
-Installing Python
+安装Python
 =================
 
-Django itself is written purely in Python, so the first step in installing the
-framework is to make sure you have Python installed.
+Django本身是由Python编写的，所以安装Django的第一步是确保你已经安装了Python。
 
-Python Versions
----------------
+Python的版本选择
+------------------
 
-The core Django framework (version 1.4+) works with any Python version from 2.5
-to 2.7, inclusive. Django's optional GIS (Geographic Information Systems)
-support requires Python 2.5 to 2.7.
+Django的核心(1.4+)可以运行在从2.5到2.7之间的任何Python版本。Django的可选GIS(地理信息系统)
+支持则需要Python 2.5到2.7的版本。
 
-If you're not sure which version of Python to install and you have complete
-freedom over the decision, pick the latest one in the 2.x series: version 2.7.
-Although Django works equally well with any version from 2.5 to 2.7, the later
-versions of Python have performance improvements and additional language
-features you might like to use in your applications. Plus, certain third-party
-Django add-ons that you might want to use might require a version newer than
-Python 2.5, so using a later version of Python keeps your options open.
+如果你不确定要安装哪个Python版本，并且你也可以随意选择的话，我们建议选择2.x系列中的最新版本：
+2.7。虽然Django在2.5到2.7的版本之间都一样运行良好，但是新版本的Python会有一些性能提升和新增的语言特性，你可以将其用到你
+的程序中。另外，一些你可能会用到Django的三方插件可能会要求比2.5更新的Python版本，所以选择较新
+的Python版本可以让你由更多选择。
 
-.. admonition:: Django and Python 3.x
 
-    At the time of writing, Python 3.3 has been released, but Django
-    only supports it experimentally. This is because the Python 3.x series 
-    introduces a substantial number of backwards-incompatible changes to the
-    language itself, and, as a result, many major Python libraries and
-    frameworks, including Django (as of version 1.4), have not yet caught up.
+.. admonition:: Django和Python 3.x
 
-    Django 1.5 is slated to support Python 2.6, 2.7, and 3.2.  However,
-    support for Python 3.2 is considered a "preview", which means the
-    Django developers are not yet confident enough to promise
-    stability in production.  For that, they suggest you wait until
-    Django 1.6.
+    在写作本书的时候，Python3.3已经发布，但是Django对Python3的支持还只是实验性的(django1.5.x)。
+    因为Python3.x引入了相当多的不向后兼容的更新，目前很多主要的Python类库和框架(包括
+    Python1.4)都还没能跟上。
 
-Installation
+    Django 1.5预计会支持Python2.6，2.7和3.2。不过这只是一种预览性质的支持，Django的开发者
+    们还没有足够的信心来保证生产环境的稳定性。如果你想要用在Python3中使用Django，他们建议等到
+    Django 1.6发布。
+
+
+安装
 ------------
 
-If you're on Linux or Mac OS X, you probably have Python already installed.
-Type ``python`` at a command prompt (or in Applications/Utilities/Terminal, in
-OS X). If you see something like this, then Python is installed::
+如果你是用Linux或者Mac OS X，你的系统很可能已经预装了Python。在命令提示符(OS X中的
+Applications/Utilities/Terminal)中输入 ``python`` ， 如果你看到类似于下面的信息，
+就说明Python已经安装好了。
+
+::
 
     Python 2.7.3rc2 (default, Apr 22 2012, 22:30:17)
     [GCC 4.6.3] on linux2
     Type "help", "copyright", "credits" or "license" for more information.
     >>>
 
-Otherwise, you'll need to download and install Python. It's fast and easy, and
-detailed instructions are available at http://www.python.org/download/
+如果没有的话，你需要去下载并安装Python。这个步骤很快也很容易，详细的说明在 http://www.python.org/download/
 
-Installing Django
+安装Django
 =================
 
-At any given time, two distinct versions of Django are available to you: the
-latest official release and the bleeding-edge development version. The version you
-decide to install depends on your priorities. Do you want a stable and tested
-version of Django, or do you want a version containing the latest features,
-perhaps so you can contribute to Django itself, at the expense of stability?
+任何时候，都有两个不同版本的Django可供您选择：最新的正式发行版和最前沿的开发版本。安装哪个版本
+取决于你。你是想要一个稳定的经过测试的Django还是一个包括最新功能，但是可能不那么稳定的Django
+(也许你可以对Django本身做贡献)。
 
-We'd recommend sticking with an official release, but it's important to know
-that the development version exists, because you'll find it mentioned
-in the documentation and by members of the community.
+我们推荐正式发行版，但是知道有开发版的存在也很重要，因为在文档和社区中常常有人提到它。
 
-Installing an Official Release
+安装正式发行版
 ------------------------------
 
-Official releases have a version number, such as 1.4.2, 1.4.1 or 1.4, and the latest
-one is always available at http://www.djangoproject.com/download/.
+正式发行版都有一个版本号，例如1.4.2，1.4.1，或者1.4。最新的版本可以在 http://www.djangoproject.com/download/ 找到。
 
-If you're on a Linux distribution that includes a package of Django, it's a
-good idea to use the distributor's version. That way, you'll get security
-updates along with the rest of your system packages.
+如果你使用的Linux发行版(译者：比如Ubuntu)包括了Django的包，用包管理器安装也很好，这样你可以
+通过系统的包管理的到安全的升级。
 
-If you don't have access to a prepackaged version, you can download and install
-the framework manually. To do so, first download the tarball, which will be
-named something like ``Django-1.4.2.tar.gz``. (It doesn't matter which
-local directory you download this file into; the installation process will put
-Django's files in the right place.) Then, unzip it and run ``setup.py install``,
-as you do with most Python libraries.
+如果你找不到一个已经打包好的Django，你可以自己下载安装。首先，下载安装包，名字类似于
+``Django-1.4.2.tar.gz`` 这种。(下载到哪里都行，安装程序会自动的把Django安装到正确的位置。)
+然后，和大多数Python的类库一样，解压这个压缩包，运行 ``setup.py install`` 就可以了。
 
-Here's how that process looks on Unix systems:
+以下是在Unix系统中安装的方法:
 
 #. ``tar xzvf Django-1.4.2.tar.gz``
 #. ``cd Django-*``
@@ -239,7 +221,7 @@ If you just want to start playing with Django, skip ahead to the
 "Starting a Project" section -- but keep in mind that all the examples in this
 book assume you have a working database set up.
 
-Django supports four database engines:
+Django支持四种数据库:
 
 * PostgreSQL (http://www.postgresql.org/)
 * SQLite 3 (http://www.sqlite.org/)
@@ -503,3 +485,4 @@ Now that you have everything installed and the development server running,
 you're ready to :doc: learn the basics `Chapter 3`_, of serving Web pages with Django.
 
 .. _Chapter 3: chapter03.html
+.. _第12章: chapter12.html
