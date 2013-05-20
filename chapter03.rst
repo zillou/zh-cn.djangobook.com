@@ -1,100 +1,78 @@
 =============================
-Chapter 3: Views and URLconfs
+第三章: 视图和URL配置
 =============================
 
-In the previous chapter, we explained how to set up a Django project and run the
-Django development server. In this chapter, you'll learn the basics of creating
-dynamic Web pages with Django.
+上一章里我们介绍了如何创建一个Django项目并启动Django的开发服务器。本章你将学到用Django创建动态
+网页的基本知识。
 
-Your First Django-Powered Page: Hello World
+
+你的第一个Django页面：Hello World
 ===========================================
 
-As our first goal, let's create a Web page that outputs that famous example
-message: "Hello world."
+我们的第一个目标，创建一个网页，输出那个最著名的例子：“Hello world.”。
 
-If you were publishing a simple "Hello world" Web page without a Web framework,
-you'd simply type "Hello world" into a text file, call it ``hello.html``,
-and upload it to a directory on a Web server somewhere. Notice, in that
-process, you've specified two key pieces of information about that Web page:
-its contents (the string ``"Hello world"``) and its URL (
-``http://www.example.com/hello.html``, or maybe ``http://www.example.com/files/hello.html``
-if you put it in a subdirectory).
+如果你曾经在没有Web框架的情况编写过一个简单的“Hello world”页面，你只要简单地在一个文本文件中输入“Hello world”
+，将文件保存为 ``hello.html`` ，然后上传到你的Web服务器的一个目录中即可。不过注意，在这个过程中，你已经
+指定了这个网页的两个关键信息：它的内容(字符串： ``Hello world`` )和它的URL( ``http://www.example.com/hello.html`` ，如果
+你吧文件放在一个子目录中，也可能是 ``http://www.example.com/files/hello.html`` )。
 
-With Django, you specify those same two things, but in a different way. The
-contents of the page are produced by a *view function*, and the URL is
-specified in a *URLconf*. First, let's write our "Hello world" view function.
+在Django中，你也需要指定这两个信息，只不过得用不同的方法。网页的内容是靠视图函数(view function)来生成的，
+URL则专门配置在URL配置中(URLconf)。首先，让我们来写我们的“Hello World” view function吧。
 
-Your First View
+第一个视图
 ---------------
 
-Within the ``mysite`` directory that ``django-admin.py startproject`` made in
-the last chapter, create an empty file called ``views.py``. This Python module
-will contain our views for this chapter. Note that there's nothing special
-about the name ``views.py`` -- Django doesn't care what the file is called, as
-you'll see in a bit -- but it's a good idea to call it ``views.py`` as a
-convention, for the benefit of other developers reading your code.
+进入到上一章我们用 ``django-admin.py startproject`` 创建的 ``mysite`` 目录中。创建一个叫做
+``views.py`` 的空文件。这个Python模块(module)将包含这一章我们将要编写的视图。这个 ``views.py`` 的名字
+并没有特别的要求，Django并不要求它叫什么名字，不过根据管理，把它叫做 ``views.py`` 会让其他开发者更容易读懂
+你的代码。
 
-Our "Hello world" view is simple. Here's the entire function, plus import
-statements, which you should type into the ``views.py`` file::
+我们的“Hello world”视图很简单，完全是写定义函数，和导入包的语句。在 ``views.py`` 中输入这些内容：
+
+::
 
     from django.http import HttpResponse
 
     def hello(request):
         return HttpResponse("Hello world")
 
-Let's step through this code one line at a time:
+让我们来逐句分析这段代码：
 
-* First, we import the class ``HttpResponse``, which lives in the
-  ``django.http`` module. We need to import this class because it's used
-  later in our code.
+* 首先，我们从 ``django.http`` 中导入了 ``HttpResponse`` 这个类。我们会在接下来用到这个类。
 
-* Next, we define a function called ``hello`` -- the view function.
+* 接着，我们定义了一个叫做 ``hello`` 的视图函数(view function)。
 
-  Each view function takes at least one parameter, called ``request`` by
-  convention. This is an object that contains information about the
-  current Web request that has triggered this view, and it's an instance of
-  the class ``django.http.HttpRequest``. In this example, we don't do
-  anything with ``request``, but it must be the first parameter of the view
-  nonetheless.
+  每个view function至少要有一个参数，通常被叫做 ``request`` 。这是一个对象，包含了触犯这个
+  view function的Web请求的信息， 它是 ``django.http.HttpRequest`` 的一个示例(instance)。
+  在这个例子中，虽然我们不对这个 ``request`` 做任何处理，但是我们还必须要把它作为视图的第一个参数。
+  
+  view function的名字并不重要；Django并不需要它以某种特定的方式命名。这里我们叫它 ``hello``
+  是因为 ``hello`` 清晰地表明这个视图的用意。你当然也可以叫它 ``hello_wonderful_beautiful_world``
+  或者其他差不多恶心的名字。下一小节“第一个URLconf”将会介绍Django如何找到这个函数。
 
-  Note that the name of the view function doesn't matter; it doesn't have
-  to be named in a certain way in order for Django to recognize it. We're
-  calling it ``hello`` here, because that name clearly indicates the gist
-  of the view, but it could just as well be named
-  ``hello_wonderful_beautiful_world``, or something equally revolting. The
-  next section, "Your First URLconf", will shed light on how Django finds
-  this function.
+* 这个函数只有一行简单的代码：它仅仅返回一个 ``HttpResponse`` 对象，这个对象包含了文本“Hello world”。
 
-* The function is a simple one-liner: it merely returns an ``HttpResponse``
-  object that has been instantiated with the text ``"Hello world"``.
+记住，一个视图本身就是一个Python的函数，这个函数接受一个 ``HttpRequest`` 作为它的第一个参数，并返回
+一个 ``HttpResponse`` 的实例。要想让一个Python函数成为一个Django的视图，你需要让它满足这两个条件。
+（也有例外，我们稍后会讲到。）
 
-The main lesson here is this: a view is just a Python function that takes an
-``HttpRequest`` as its first parameter and returns an instance of
-``HttpResponse``. In order for a Python function to be a Django view, it must
-do these two things. (There are exceptions, but we'll get to those later.)
-
-Your First URLconf
+第一个URLconf
 ------------------
 
-If, at this point, you ran ``python manage.py runserver`` again, you'd still
-see the "Welcome to Django" message, with no trace of our "Hello world" view
-anywhere. That's because our ``mysite`` project doesn't yet know about the
-``hello`` view; we need to tell Django explicitly that we're activating this
-view at a particular URL. (Continuing our previous analogy of publishing
-static HTML files, at this point we've created the HTML file but haven't
-uploaded it to a directory on the server yet.) To hook a view function to a
-particular URL with Django, use a URLconf.
+现在，如果你再运行 ``python manage.py runserver``，你还是会看到“Weclome to Django”的欢迎页面，
+而看不到我们刚刚写的“Hello world”视图。因为我们的项目 ``mysite`` 还不知道有 ``hello`` 这个视图；
+我们需要显式地告诉Django我们要让哪个URL来激活这个视图。 (这就像上面那个发布静态HTML的例子中，我们已经
+创建了HTML文件，但是还没有把它上传到服务器上。) 在Django里，要关联view function到一个URL，需要用到
+URLconf。
 
-A *URLconf* is like a table of contents for your Django-powered Web site.
-Basically, it's a mapping between URLs and the view functions that
-should be called for those URLs. It's how you tell Django, "For this
-URL, call this code, and for that URL, call that code." For example, "When
-somebody visits the URL ``/foo/``, call the view function ``foo_view()``, which
-lives in the Python module ``views.py``."
+*URLconf* 就像是你的Django站点的目录。本质上，它是一个URL和这个URL将调用的view function之间的映射关系。
+通过这种方式，你就可以告诉Django：“对于这个URL，调用这段代码，对于那个URL，调用那段代码。”例如，当用户访问
+``/foo/`` 时，调用view function ``foo_view()``， 这个view function在 ``views.py`` 中。
 
-When you executed ``django-admin.py startproject`` in the previous chapter, the
-script created a URLconf for you automatically: the file ``urls.py``. By
-default, it looks something like this::
+在前一章，你执行 ``django-admin.py startproject`` 时，Django已经自动为你创建了一个
+URLconf，就是 ``urls.py`` 那个文件。默认的 ``urls.py`` 会是下面这个样子：
+
+::
 
     from django.conf.urls import patterns, include, url
 
@@ -114,37 +92,32 @@ default, it looks something like this::
         # url(r'^admin/', include(admin.site.urls)),
     )
 
-This default URLconf includes some commonly used Django features commented out,
-so that activating those features is as easy as uncommenting the appropriate
-lines. If we ignore the commented-out code, here's the essence of a URLconf::
+URLconf中带了一些被注释的功能，这些在Django中经常会被用到，所有你只要去掉那些功能的注释就可以
+开启这些功能。下面是忽略掉被注释掉的内容后，``urls.py`` 中实际的内容：
+
+::
 
     from django.conf.urls.defaults import patterns, include, url
 
     urlpatterns = patterns('',
     )
 
-Let's step through this code one line at a time:
+照例，我们来逐行分析这些代码：
 
-* The first line imports three functions from the ``django.conf.urls.defaults``
-  module, which is Django's URLconf infrastructure: ``patterns``, ``include``,
-  and ``urls``.
+* 第一行从 ``django.conf.urls.defaults`` 中导入了三个函数。这三个函数是Django URLconf的基本构造：
+  ``patterns``, ``include`` 和 ``urls`` 。
 
-* The second line calls the function ``patterns`` and saves the result
-  into a variable called ``urlpatterns``. The ``patterns`` function gets
-  passed only a single argument -- the empty string. (The string can be
-  used to supply a common prefix for view functions, which we'll cover in
-  :doc:`chapter08`.)
+* 第二行调用 ``patterns`` 这个函数，并把结果保存在一个叫做 ``urlpatterns`` 的变量中。 ``patterns``
+  函数接受一个空字符串作为参数。(这个字符串被用作溢恶视图韩式的通用前缀，我们会在 :doc:`chapter08` 深入介绍。)
 
-The main thing to note here is the variable ``urlpatterns``, which Django
-expects to find in your URLconf module. This variable defines the mapping
-between URLs and the code that handles those URLs. By default, as we can see,
-the URLconf is empty -- your Django application is a blank slate. (As a side
-note, that's how Django knew to show you the "Welcome to Django" page in the
-last chapter. If your URLconf is empty, Django assumes you just started a new
-project and, hence, displays that message.)
+这样要注意的是 ``urlpatterns`` 这个变量，Django会在你的URLconf模块中寻找它。这个变量定义了
+URL和处理这个URL请求的代码的映射关系。默认情况下，URLconf是空白的，你的Django程序还是白板一块。
+(如果你的URLconf是空的，Django就会认为这个项目是刚刚创建的，所以它会显示那个欢迎页面。)
 
-To add a URL and view to the URLconf, just add a mapping between a URL
-pattern and the view function. Here's how to hook in our ``hello`` view::
+要在URLconf中电价一个URL和view，只需要添加一个URL模式和view function的映射即可。这里演示如果
+将我们的 ``hello`` 视图关联起来：
+
+::
 
     from django.conf.urls.defaults import patterns, include, url
     from mysite.views import hello
@@ -153,43 +126,27 @@ pattern and the view function. Here's how to hook in our ``hello`` view::
         url(r'^hello/$', hello),
     )
 
-(Note that we've removed the commented-out code for brevity. You can choose
-to leave those lines in, if you'd like.)
+(注意，为了简洁，我们移除了注释代码。如果你喜欢的话，你也可以保留那些行。)
 
-We made two changes here:
+我们做了两处修改：
 
-* First, we imported the ``hello`` view from its module --
-  ``mysite/views.py``, which translates into ``mysite.views`` in Python
-  import syntax. (This assumes ``mysite/views.py`` is on your Python path;
-  see the sidebar for details.)
+* 首先，我们从模块 ``mysite/views.py`` 中导入了 ``hello`` 这个view function。Python的导入语法用
+  ``mysite.views`` 表示 ``mysite/views.py`` 。(这段代码假设了 ``mysite/views.py`` 在Python的搜索路径中，下面的注释中会有详细介绍。)
 
-* Next, we added the line ``url(r'^hello/$', hello),`` to ``urlpatterns``. This
-  line is referred to as a *URLpattern*. The ``url()`` function tells Django how
-  to handle the url that you are configuring. The first argument is a
-  pattern-matching string (a regular expression; more on this in a bit) and the
-  second argument is the view function to use for that pattern. ``url()`` can
-  take other optional arguments as well, which we'll cover in more depth in
-  :doc:`chapter08`.
+* 接着，我们添加了 ``url(r'^hello/$', hello),`` 到 ``urlpatterns`` 中。这一行被叫做一个
+  *URLpattern* 。 ``url()`` 函数会告诉Django如何处理你配置的url。 ``url()`` 的第一个参数是一个模式匹配字符串(
+  正则表达式，稍后会有详细介绍)，第二个参数处理这个URLpattern的view function。 ``url()`` 还接受第三个参数，在
+  :doc:`chapter08` 再详细介绍。
 
-.. note::
+.. admonition:: 注意
 
-  One more important detail we've introduced here is that ``r`` character in
-  front of the regular expression string. This tells Python that the string is a
-  "raw string" -- its contents should not interpret backslashes. In normal
-  Python strings, backslashes are used for escaping special characters -- such
-  as in the string ``'\n'``, which is a one-character string containing a
-  newline. When you add the ``r`` to make it a raw string, Python does not apply
-  its backslash escaping -- so, ``r'\n'`` is a two-character string containing a
-  literal backslash and a lowercase "n". There's a natural collision between
-  Python's usage of backslashes and the backslashes that are found in regular
-  expressions, so it's strongly suggested that you use raw strings any time
-  you're defining a regular expression in Python. All of the URLpatterns in this
-  book will be raw strings.
+  另一个值得注意的地方是，我们在正则表达式字符串前面加了一个 ``r`` 。在Python中，这表示一个原始字符串(raw
+  string)，Python不过去转义那些反斜杠(``\``)。在普通的Python字符串中，反斜杠会被用来转义特殊字符，比如字符串
+  ``'\n'`` 会被解释成换行符。当你加上 ``r`` 之后，Python就不会转义那些字符了， ``r'\n'`` 就是一个包括了一个反斜杠和一个小写字母“n”的字符串。正则表达式中反斜杠的用法和Python字符串中反斜杠的用法刚好冲突了。所以在Python中使用正则表达式的时候最好都加上 ``r`` 。本书中所有的URLpattern都会用这种形式。
 
-In a nutshell, we just told Django that any request to the URL ``/hello/`` should
-be handled by the ``hello`` view function.
+简单来说，我们只是告诉了Django所有对URL ``/hello/`` 的请求都由 ``hello`` 这个view function来处理。
 
-.. admonition:: Your Python Path
+.. admonition:: Python的搜索路径
 
     Your *Python path* is the list of directories on your system where Python
     looks when you use the Python ``import`` statement.
@@ -276,65 +233,53 @@ restart the server between changes.) The server is running at the address
 ``http://127.0.0.1:8000/hello/``. You should see the text "Hello world" -- the
 output of your Django view.
 
-Hooray! You've made your first Django-powered Web page.
+耶! 你用Django成功创建了你的第一个网页了。
 
-.. admonition:: Regular Expressions
+.. admonition:: 正则表达式
 
-    *Regular expressions* (or *regexes*) are a compact way of specifying
+    正则表达式(*Regular expressions* 或者 *regexes*) are a compact way of specifying
     patterns in text. While Django URLconfs allow arbitrary regexes for
     powerful URL matching, you'll probably only use a few regex symbols in
     practice. Here's a selection of common symbols:
 
     ============  ==========================================================
-    Symbol        Matches
+    符号           匹配
     ============  ==========================================================
-    ``.`` (dot)   Any single character
+    ``.`` (dot)   匹配任一字符
 
-    ``\d``        Any single digit
+    ``\d``        匹配任意一个数字
 
-    ``[A-Z]``     Any character between ``A`` and ``Z`` (uppercase)
+    ``[A-Z]``     匹配A-Z中的任意一个大写字母(即匹配任意一个大写的英文字母)
 
-    ``[a-z]``     Any character between ``a`` and ``z`` (lowercase)
+    ``[a-z]``     匹配A-Z中的任意一个小写字母(即匹配任意一个小写的英文字母)
 
-    ``[A-Za-z]``  Any character between ``a`` and ``z`` (case-insensitive)
+    ``[A-Za-z]``  匹配a-z中任意一个字母(不区分大小写)
 
-    ``+``         One or more of the previous expression (e.g., ``\d+``
-                  matches one or more digits)
+    ``+``         匹配一个或更多其前面的表达式 (例如： ``\d+`` 匹配一个或多个数字)
 
-    ``[^/]+``     One or more characters until (and not including) a
-                  forward slash
+    ``[^/]+``     匹配一个或多个不为‘/’的字符
 
-    ``?``         Zero or one of the previous expression (e.g., ``\d?``
-                  matches zero or one digits)
+    ``?``         匹配 **零个** 或多个其前面的表达式(例如： ``\d?`` 匹配0个或1个数字)
 
-    ``*``         Zero or more of the previous expression (e.g., ``\d*``
-                  matches zero, one or more than one digit)
+    ``*``         匹配 **零个** 或多个其前面的表达式(例如： ``\d*`` 匹配0个，1个或多个数字)
 
-    ``{1,3}``     Between one and three (inclusive) of the previous
-                  expression (e.g., ``\d{1,3}`` matches one, two or three
-                  digits)
+    ``{1,3}``     介于1个和3个之前的表达式(例如： ``\d{1,3}`` 匹配1个，2个或者3个数字)
     ============  ==========================================================
 
-    For more on regular expressions, see http://www.djangoproject.com/r/python/re-module/.
+    更多关于正则表达式的内容，请查阅 http://www.djangoproject.com/r/python/re-module/ 。
 
-A Quick Note About 404 Errors
+404错误简介
 -----------------------------
 
-At this point, our URLconf defines only a single URLpattern: the one that
-handles requests to the URL ``/hello/``. What happens when you request a
-different URL?
+目前，我们的URLconf中只定义了一个URLpattern：处理到 ``/hello/`` 的请求。如果请求其他的URL会怎么样呢？
 
-To find out, try running the Django development server and visiting a page such
-as ``http://127.0.0.1:8000/goodbye/`` or
-``http://127.0.0.1:8000/hello/subdirectory/``, or even ``http://127.0.0.1:8000/``
-(the site "root"). You should see a "Page not found" message (see Figure 3-1).
-Django displays this message because you requested a URL that's not defined in
-your URLconf.
+运行你的Django开发服务器，然后访问一个类似 ``http://127.0.0.1:8000/goodbye/``, ``http://127.0.0.1:8000/hello/subdirectory/`` 或者是 ``http://127.0.0.1:8000/`` (网站根目录)的页面。你会看到一个“Page
+not found”信息(如图3-1所示)。因为你没有定义如何处理这个URL请求，所有Django显示这样的信息。
 
 .. figure:: graphics/chapter03/404.png
-   :alt: Screenshot of Django's 404 page.
+   :alt: Django的404页面截图.
 
-   Figure 3-1. Django's 404 page
+   图3-1. Django的404页面
 
 The utility of this page goes beyond the basic 404 error message. It also tells
 you precisely which URLconf Django used and every pattern in that URLconf. From
