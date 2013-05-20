@@ -89,7 +89,7 @@ dt .literal, table .literal { background:none; }
 .admonition-title { font-weight:bold; margin-top:0 !important; margin-bottom:0 !important;}
 .admonition .last { margin-bottom:0 !important; }
 .admonition-philosophy { padding-left:65px; background:url(https://www.djangoproject.com/m/img/doc/icons/docicons-philosophy.gif) .8em .8em no-repeat;}
-.note, .admonition { padding-left:65px; background:url(https://www.djangoproject.com/m/img/doc/icons/docicons-note.gif) .8em .8em no-repeat;}
+.note, .admonition { padding-left:65px; background:url(images/docicons-note.gif) .8em .8em no-repeat;}
 .admonition-behind-the-scenes { padding-left:65px; background:url(https://www.djangoproject.com/m/img/doc/icons/docicons-behindscenes.gif) .8em .8em no-repeat;}
 
 /*** footer ***/
