@@ -45,7 +45,7 @@ URL则专门配置在URL配置中(URLconf)。首先，让我们来写我们的�
   每个view function至少要有一个参数，通常被叫做 ``request`` 。这是一个对象，包含了触犯这个
   view function的Web请求的信息， 它是 ``django.http.HttpRequest`` 的一个示例(instance)。
   在这个例子中，虽然我们不对这个 ``request`` 做任何处理，但是我们还必须要把它作为视图的第一个参数。
-  
+
   view function的名字并不重要；Django并不需要它以某种特定的方式命名。这里我们叫它 ``hello``
   是因为 ``hello`` 清晰地表明这个视图的用意。你当然也可以叫它 ``hello_wonderful_beautiful_world``
   或者其他差不多恶心的名字。下一小节“第一个URLconf”将会介绍Django如何找到这个函数。
@@ -149,7 +149,7 @@ URL和处理这个URL请求的代码的映射关系。默认情况下，URLconf�
 .. admonition:: Python的搜索路径(Python path)
 
     Python的搜索路径是指你用 ``import`` 导入语句时，Python所查找的系统目录清单。
-    
+
     举例来说，如果你的Python路径设为 ``['',
     '/usr/lib/python2.7/site-packages', '/home/username/djcode']`` 。如果你执行语句
     ``from foo import bar`` 时，Python先在当前目录寻找叫 ``foo.py`` 的模块(Python路径中的第一个目录，用空字符串表示当前目录)。如果文件不存在，Python会继续查找
@@ -157,7 +157,7 @@ URL和处理这个URL请求的代码的映射关系。默认情况下，URLconf�
     ``/home/username/djcode/foo.py`` 。最后，如果这个文件真的不存在是，Python会抛出异常 ``ImportError`` 。
 
     要检查你的Python路径，只需要在Python的交互解释器中输入：
-    
+
     ::
 
         >>> import sys
@@ -181,7 +181,7 @@ URL和处理这个URL请求的代码的映射关系。默认情况下，URLconf�
 
   大多数的URLpattern都会以一个脱字符( ``^`` )开头，以一个美元符( ``$`` )结尾。
   但是拥有匹配复杂URL的灵活性会也很好。
-  
+
   你也许会问，如果由人访问 ``/hello`` (尾部没有斜杠)会怎样，因为我们的URL模式要求结尾
   有一个斜杠，这样这个URL并不匹配我们定义的模式。不过，默认情况下，一个没有以斜杠结尾的URL
   找不到匹配的URLpattern的话，会被重定向(redirect)到一个添加了斜杠的相同URL去。(者是受Django
@@ -191,7 +191,7 @@ URL和处理这个URL请求的代码的映射关系。默认情况下，URLconf�
   后添加斜杠并且设置 ``APPEND_SLASH`` 为 ``True`` 。如果你更愿意不要结尾的那个斜杠，
   或者根据每个URL的情况来决定的话，那么需要将 ``APPEND_SLASH`` 设置为 ``False`` ，
   然后根据你的意愿来添加结尾的斜杠到你想要添加的URL上。
- 
+
 另一个要注意的地方是。这个URLconf中我们是把 ``hello`` 这个view function直接作为一个对象传递的，而不是去调用它。
 这是Pyhton(作为动态语言)的一个重要特征，函数是一级对象(first-class objects)，你可以像
 传递其它变量一样传递一个函数。很酷吧？
@@ -248,29 +248,26 @@ not found”信息(如图3-1所示)。因为你没有定义如何处理这个URL
 
    图3-1. Django的404页面
 
-The utility of this page goes beyond the basic 404 error message. It also tells
-you precisely which URLconf Django used and every pattern in that URLconf. From
-that information, you should be able to tell why the requested URL threw a 404.
+这个页面比原始的404错误信息更加实用，它还显示了哪个URLconf被用到，以及这个URLconf里面的
+每一个匹配模式。你可以通过这个信息知道为什么你请求的URL会抛出404错误。
 
-Naturally, this is sensitive information intended only for you, the Web
-developer. If this were a production site deployed live on the Internet, you
-wouldn't want to expose that information to the public. For that reason, this
-"Page not found" page is only displayed if your Django project is in *debug
-mode*. We'll explain how to deactivate debug mode later. For now, just know
-that every Django project is in debug mode when you first create it, and if the
-project is not in debug mode, Django outputs a different 404 response.
+当然，这些敏感的信息只会显示给开发者，如果是已经部署到因特网上的生产站点就不能再将这些信息暴露出来。
+所以，这个“Page not found”的页面只会在 *调试模式* 下显示，我们会在以后说明怎么关闭调试模式，
+你现在只要知道，每个项目创建时默认是处在调试模式的，如果关闭调试模式后，Django会输出一个不同的
+404响应。
 
-A Quick Note About The Site Root
+
+网站根目录简介
 --------------------------------
 
-As explained in the last section, you'll see a 404 error message if you view
-the site root -- ``http://127.0.0.1:8000/``. Django doesn't add magically
-anything to the site root; that URL is not special-cased in any way. It's up to
-you to assign it to a URLpattern, just like every other entry in your URLconf.
+上一节中，我们访问网站根目录 ``http://127.0.0.1:8000/`` 时，得到一个404错误消息。
+Django不会在你的网站根目录下增加任何东西，Django不会区别对待这个URL。这需要你到URLconf中
+为它指定一个URLpattern，和URLconf中其他条目完全一样。
 
-The URLpattern to match the site root is a bit unintuitive, though, so it's
-worth mentioning. When you're ready to implement a view for the site root, use
-the URLpattern ``'^$'``, which matches an empty string. For example::
+要去匹配网站根目录可能不是那么直观，所以这里专门列出来一下。当你写好你的网站根目录的视图之后，
+用 ``'^$'`` 这个模式去匹配，因为它会匹配一个空字符串。如下面的例子所示：
+
+::
 
     from mysite.views import hello, my_homepage_view
 
@@ -279,77 +276,66 @@ the URLpattern ``'^$'``, which matches an empty string. For example::
         # ...
     )
 
-How Django Processes a Request
+Django如何处理一个请求
 ==============================
 
-Before continuing to our second view function, let's pause to learn a little
-more about how Django works. Specifically, when you view your "Hello world"
-message by visiting ``http://127.0.0.1:8000/hello/`` in your Web browser, what
-does Django do behind the scenes?
+在开始我们的第二个视图之前，我想暂停一下，先去了解一点Django的原理。当你通过浏览器访问
+``http://127.0.0.1:8000/hello/`` ，你会看到你的“Hello world”信息。Django在后台
+都做了哪些事情呢？
 
-It all starts with the *settings file*. When you run ``python manage.py
-runserver``, the script looks for a file called ``settings.py`` in the inner
-``mysite`` directory. This file contains all sorts of configuration for this
-particular Django project, all in uppercase: ``TEMPLATE_DIRS``, ``DATABASES``,
-etc. The most important setting is called ``ROOT_URLCONF``. ``ROOT_URLCONF``
-tells Django which Python module should be used as the URLconf for this Web
-site.
+所有均开始于setting文件。当你运行 ``python manage.py runserver`` 时，这个脚本会去
+内层那个 ``mysite`` 文件夹内查找一个 ``setting.py`` 的文件。这个文件包裹了当前这个Django
+项目的各种各样的配置。这些配置信息都是大写的，如： ``TEMPLATE_DIRS`` ，``DATABASES`` 等等。
+最重要的一个配置是 ``ROOT_URLCONF`` 。 ``ROOT_URLCONF`` 定义了那个Python模块被用在这个网站
+的URLconf。
 
-Remember when ``django-admin.py startproject`` created the files
-``settings.py`` and ``urls.py``? The autogenerated ``settings.py`` contains a
-``ROOT_URLCONF`` setting that points to the autogenerated ``urls.py``. Open the
-``settings.py`` file and see for yourself; it should look like this::
+还记得运行 ``django-admin.py startproject`` 的时候创建了 ``settings.py`` 和 ``urls.py``
+这两个文件吧？这个自动创建的 ``settings.py`` 包括了 ``ROOT_URLCONF`` ，并且将其指向了自动生产的
+``settings.py`` 。打开这个 ``setting.py`` ，你会看到：
+
+::
 
     ROOT_URLCONF = 'mysite.urls'
 
-This corresponds to the file ``mysite/urls.py``.
+其对应的文件就是 ``mysite/urls.py`` 。
 
-When a request comes in for a particular URL -- say, a request for ``/hello/``
--- Django loads the URLconf pointed to by the ``ROOT_URLCONF`` setting. Then it
-checks each of the URLpatterns in that URLconf, in order, comparing the
-requested URL with the patterns one at a time, until it finds one that matches.
-When it finds one that matches, it calls the view function associated with that
-pattern, passing it an ``HttpRequest`` object as the first parameter. (We'll
-cover the specifics of ``HttpRequest`` later.)
+当你访问一个特定的URL时，比如 ``/hello/`` ， Django会加载 ``ROOT_URLCONF`` 指向的URLconf，
+然后按顺序逐个检查里面的URLpattern，知道找到和请求的URL匹配的URLpattern。当找到匹配的URLpattern后，
+Django会调用和这个URLpattern相关联的view function，并把当前的请求作为一个 ``HttpRequest`` 对象
+传到view function的第一个参数。(稍后我们会介绍 ``HttpRequest`` 的标准。)
 
-As we saw in our first view example, a view function must return an
-``HttpResponse``. Once it does this, Django does the rest, converting the
-Python object to a proper Web response with the appropriate HTTP headers and
-body (i.e., the content of the Web page).
+正如我们的第一个例子一样，一个view function必须返回一个 ``HttpResponse`` 对象。剩下的事情就由Django
+来完成，Django会把这个Pythong对象转换成合适的Web响应，设置合适的HTTP头部以及内容(比如网页的内容)。
 
-In summary:
+总结一下：
 
-1. A request comes in to ``/hello/``.
-2. Django determines the root URLconf by looking at the ``ROOT_URLCONF``
-   setting.
-3. Django looks at all of the URLpatterns in the URLconf for the first one
-   that matches ``/hello/``.
-4. If it finds a match, it calls the associated view function.
-5. The view function returns an ``HttpResponse``.
-6. Django converts the ``HttpResponse`` to the proper HTTP response, which
-   results in a Web page.
+1. 一个请求进来，请求 ``/hello/`` 。
+2. Django通过 ``ROOT_URLCONF`` 找到根URLconf。
+3. Django在URLconf中找到第一个匹配 ``/hello/`` 的URLpattern。
+4. 如果找到匹配项，Django调用对应的视图函数。
+5. 视图函数返回一个 ``HttpResponse`` 。
+6. Django将 ``HttpResponse`` 转换成正确的HTTP响应，就是浏览器中显示的网页了。
 
-You now know the basics of how to make Django-powered pages. It's quite simple,
-really -- just write view functions and map them to URLs via URLconfs.
+你现在知道怎么做一个Django页面了。真的很简单，只需要编写一些view function，然后通过URLconf将他们
+和URL一一对应起来。
 
-Your Second View: Dynamic Content
+
+第二个视图： 动态内容
 =================================
 
-Our "Hello world" view was instructive in demonstrating the basics of how
-Django works, but it wasn't an example of a *dynamic* Web page, because the
-content of the page are always the same. Every time you view ``/hello/``,
-you'll see the same thing; it might as well be a static HTML file.
+我们的“Hello world”视图是用来演示Django的工作方式，它还不是一个 *动态* 的网页，因为
+它的内容总是一样的。每次你访问 ``/hello/`` 都会看到一样的内容，这还是和一个静态HTML文件
+一样。
 
-For our second view, let's create something more dynamic -- a Web page that
-displays the current date and time. This is a nice, simple next step, because
-it doesn't involve a database or any user input -- just the output of your
-server's internal clock. It's only marginally more exciting than "Hello world,"
-but it'll demonstrate a few new concepts.
+那让我们的第二个视图更动态一点儿吧，我们还做一个显示当前日期和时间的页面。这个例子足够简单，
+不涉及数据库或者用户输入，仅仅是将服务器上的时间显示到页面上。这个例子只是比上面那个稍微有
+意思一点，不过它也能用来展示几个概念。
 
-This view needs to do two things: calculate the current date and time, and
-return an ``HttpResponse`` containing that value. If you have experience with
-Python, you know that Python includes a ``datetime`` module for calculating
-dates. Here's how to use it::
+这个视图需要做两件事：计算当前的日期和时间，以及返回一个包含这个值的 ``HttpResponse`` 。
+如果你有过Python的经验，你也许知道Python有一个 ``datetime`` 模块可以用来计算日期。
+下面我们来看看如何用它：
+
+::
 
     >>> import datetime
     >>> now = datetime.datetime.now()
@@ -358,11 +344,9 @@ dates. Here's how to use it::
     >>> print now
     2008-12-13 14:09:39.002731
 
-That's simple enough, and it has nothing to do with Django. It's just Python
-code. (We want to emphasize that you should be aware of what code is "just
-Python" vs. code that is Django-specific. As you learn Django, we want you to
-be able to apply your knowledge to other Python projects that don't necessarily
-use Django.)
+很简单，也并没有涉及到Django。它仅仅是Python的代码。(我们希望你注意哪些是纯Python代码，哪些
+是有Django特性的代码，这样，在你学习Django的过程中，你也可以学到一些Python的知识，并用到其他的
+不用Django的Python项目中。)
 
 To make a Django view that displays the current date and time, then, we just
 need to hook this ``datetime.datetime.now()`` statement into a view and return
@@ -684,33 +668,29 @@ not found" error in this case, just as we saw in the section "A Quick Note
 About 404 Errors" earlier. The URL ``http://127.0.0.1:8000/time/plus/`` (with
 *no* hour designation) should also throw a 404.
 
-.. admonition:: Coding Order
+.. admonition:: 编码顺序
 
-    In this example, we wrote the URLpattern first and the view second, but in
-    the previous examples, we wrote the view first, then the URLpattern. Which
-    technique is better?
+    这个例子中，我们先写了URLpattern，然后才写视图，但是上一个例子中我们是先写视图，才是URLpattern。
+    哪一种方式更好呢？
 
-    Well, every developer is different.
+    嗯，怎么说呢，每个开发者都不一样。
 
-    If you're a big-picture type of person, it may make the most sense to you
-    to write all of the URLpatterns for your application at the same time, at
-    the start of your project, and then code up the views. This has the
-    advantage of giving you a clear to-do list, and it essentially defines the
-    parameter requirements for the view functions you'll need to write.
+    如果你是一个喜欢从总体上来把握的人，你应该更喜欢在项目开始的时候就写下所有的URL配置。
+    然后再去编写每个对应的视图。这种方式的一个好处是它会给你一个很清晰的列表，一个to-do list，
+    还明确地定义了你需要编写的视图函数的参数。
 
-    If you're more of a bottom-up developer, you might prefer to write the
-    views first, and then anchor them to URLs afterward. That's OK, too.
+    如果你更像一个自底向上的开发者，你可能更喜欢先写视图，然后把他们和URL联系起来。这样也是没问题的。
 
-    In the end, it comes down to which technique fits your brain the best. Both
-    approaches are valid.
+    最后，这两种方式都是可行的，取决于你的大脑更适应哪种思考方式。
 
-Django's Pretty Error Pages
+
+Django漂亮的出错页面
 ===========================
 
-Take a moment to admire the fine Web application we've made so far . . . now
-let's break it! Let's deliberately introduce a Python error into our
-``views.py`` file by commenting out the ``offset = int(offset)`` lines in the
-``hours_ahead`` view::
+哈，让我花点时间来欣赏一下我们写好的Web程序吧……然后，我们来搞点儿小破坏。我们来把 ``offset = int(offset)``
+注释掉，这会让 ``views.py`` 中产生一个错误。
+
+::
 
     def hours_ahead(request, offset):
         # try:
@@ -721,27 +701,20 @@ let's break it! Let's deliberately introduce a Python error into our
         html = "<html><body>In %s hour(s), it will be %s.</body></html>" % (offset, dt)
         return HttpResponse(html)
 
-Load up the development server and navigate to ``/time/plus/3/``. You'll see an
-error page with a significant amount of information, including a ``TypeError``
-message displayed at the very top: ``"unsupported type for timedelta hours
-component: unicode"``.
+启动开发服务器，然后访问 ``/time/plus/3/`` 。 你会看到一个包含大量信息的出错页，最上面是一条 ``TypeError``
+信息 ``"unsupported type for timedelta hours component: unicode"`` 。
 
-What happened? Well, the ``datetime.timedelta`` function expects the ``hours``
-parameter to be an integer, and we commented out the bit of code that converted
-``offset`` to an integer. That caused ``datetime.timedelta`` to raise the
-``TypeError``. It's the typical kind of small bug that every programmer runs
-into at some point.
+怎么回事呢？ ``datetime.timedelta`` 函数要求参数 ``hours`` 是一个整数，但是我们注释掉
+了将 ``offset`` 转换为整数的代码。这就导致了 ``datetime.timedelta`` 抛出 ``TypeError``
+的异常。这是每个程序员都会遇到的小bug。
 
-The point of this example was to demonstrate Django's error pages. Take some
-time to explore the error page and get to know the various bits of information
-it gives you.
+这个例子是为了展示Django的出错页面。我们花点时间来看看这个出错页，看看里面有哪些
+信息。
 
-Here are some things to notice:
+以下几点值得注意：
 
-* At the top of the page, you get the key information about the exception:
-  the type of exception, any parameters to the exception (the ``"unsupported
-  type"`` message in this case), the file in which the exception was raised,
-  and the offending line number.
+* 在页面顶部，你会得到关键的异常信息：异常类型，造成异常的参数(如本例中的
+  ``"unsupported type"`` 信息)，异常发生在哪个文件，出错的行号等等。
 
 * Under the key exception information, the page displays the full Python
   traceback for this exception. This is similar to the standard traceback
@@ -814,16 +787,14 @@ in Chapter 12. For now, just know that every Django project is in debug mode
 automatically when you start it. (Sound familiar? The "Page not found" errors,
 described earlier in this chapter, work the same way.)
 
-What's next?
+下一章
 ============
 
-So far, we've been writing our view functions with HTML hard-coded directly
-in the Python code. We've done that to keep things simple while we demonstrated
-core concepts, but in the real world, this is nearly always a bad idea.
+本章里，我们编写了view function，把HTML直接hard-code在Python代码里了。我们这样做是为了
+演示方便，但是在实际情况中，一般这样的方式都不好。
 
-Django ships with a simple yet powerful template engine that allows you to
-separate the design of the page from the underlying code. We'll dive into
-Django's template engine in the next chapter `Chapter 4`_.
+Djano提供了一个简单但强大的模板引擎，可以让你将页面的设计和底层的代码分隔开来。下一章_ ，我们就将
+深入Django的模板引擎。
 
-.. _Chapter 4: chapter04.html
+.. _下一章: chapter04.html
 .. _附录D: appendixD.html
