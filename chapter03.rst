@@ -59,7 +59,7 @@ URL则专门配置在URL配置中(URLconf)。首先，让我们来写我们的�
 第一个URLconf
 ------------------
 
-现在，如果你再运行 ``python manage.py runserver``，你还是会看到“Weclome to Django”的欢迎页面，
+现在，如果你再运行 ``python manage.py runserver`` ，你还是会看到“Weclome to Django”的欢迎页面，
 而看不到我们刚刚写的“Hello world”视图。因为我们的项目 ``mysite`` 还不知道有 ``hello`` 这个视图；
 我们需要显式地告诉Django我们要让哪个URL来激活这个视图。 (这就像上面那个发布静态HTML的例子中，我们已经
 创建了HTML文件，但是还没有把它上传到服务器上。) 在Django里，要关联view function到一个URL，需要用到
@@ -67,7 +67,7 @@ URLconf。
 
 *URLconf* 就像是你的Django站点的目录。本质上，它是一个URL和这个URL将调用的view function之间的映射关系。
 通过这种方式，你就可以告诉Django：“对于这个URL，调用这段代码，对于那个URL，调用那段代码。”例如，当用户访问
-``/foo/`` 时，调用view function ``foo_view()``， 这个view function在 ``views.py`` 中。
+``/foo/`` 时，调用view function ``foo_view()`` ， 这个view function在 ``views.py`` 中。
 
 在前一章，你执行 ``django-admin.py startproject`` 时，Django已经自动为你创建了一个
 URLconf，就是 ``urls.py`` 那个文件。默认的 ``urls.py`` 会是下面这个样子：
@@ -108,7 +108,7 @@ URLconf中带了一些被注释的功能，这些在Django中经常会被用到�
   ``patterns``, ``include`` 和 ``urls`` 。
 
 * 第二行调用 ``patterns`` 这个函数，并把结果保存在一个叫做 ``urlpatterns`` 的变量中。 ``patterns``
-  函数接受一个空字符串作为参数。(这个字符串被用作溢恶视图韩式的通用前缀，我们会在 :doc:`chapter08` 深入介绍。)
+  函数接受一个空字符串作为参数。(这个字符串被用作一个视图函数的通用前缀，我们会在 :doc:`chapter08` 深入介绍。)
 
 这样要注意的是 ``urlpatterns`` 这个变量，Django会在你的URLconf模块中寻找它。这个变量定义了
 URL和处理这个URL请求的代码的映射关系。默认情况下，URLconf是空白的，你的Django程序还是白板一块。
@@ -146,101 +146,68 @@ URL和处理这个URL请求的代码的映射关系。默认情况下，URLconf�
 
 简单来说，我们只是告诉了Django所有对URL ``/hello/`` 的请求都由 ``hello`` 这个view function来处理。
 
-.. admonition:: Python的搜索路径
+.. admonition:: Python的搜索路径(Python path)
 
-    Your *Python path* is the list of directories on your system where Python
-    looks when you use the Python ``import`` statement.
+    Python的搜索路径是指你用 ``import`` 导入语句时，Python所查找的系统目录清单。
+    
+    举例来说，如果你的Python路径设为 ``['',
+    '/usr/lib/python2.7/site-packages', '/home/username/djcode']`` 。如果你执行语句
+    ``from foo import bar`` 时，Python先在当前目录寻找叫 ``foo.py`` 的模块(Python路径中的第一个目录，用空字符串表示当前目录)。如果文件不存在，Python会继续查找
+    ``/usr/lib/python2.7/site-packages/foo.py`` 。如果还是找不到，Python会接着寻找
+    ``/home/username/djcode/foo.py`` 。最后，如果这个文件真的不存在是，Python会抛出异常 ``ImportError`` 。
 
-    For example, let's say your Python path is set to ``['',
-    '/usr/lib/python2.7/site-packages', '/home/username/djcode']``. If you
-    execute the Python statement ``from foo import bar``, Python will look for
-    a module called ``foo.py`` in the current directory. (The first entry in the
-    Python path, an empty string, means "the current directory.") If that file
-    doesn't exist, Python will look for the file
-    ``/usr/lib/python2.7/site-packages/foo.py``. If that file doesn't exist, it
-    will try ``/home/username/djcode/foo.py``. Finally, if *that* file doesn't
-    exist, it will raise ``ImportError``.
-
-    If you're interested in seeing the value of your Python path, start the
-    Python interactive interpreter and type this::
+    要检查你的Python路径，只需要在Python的交互解释器中输入：
+    
+    ::
 
         >>> import sys
         >>> print sys.path
 
-    Generally you don't have to worry about setting your Python path -- Python
-    and Django take care of things for you automatically behind the scenes.
-    (Setting the Python path is one of the things that the ``manage.py`` script
-    does.)
+    通常你都不需要去关心Python路径的设置，Python和Django会帮你处理好。
+    (Django项目中Python路径的的设置是由 ``manage.py`` 控制的)。
 
-It's worth discussing the syntax of this URLpattern, as it may not be
-immediately obvious. Although we want to match the URL ``/hello/``, the pattern
-looks a bit different than that. Here's why:
+讨论一下URLpattern的语法也是很有必要的，因为它并不那么直观。我们是想要匹配地址 ``/hello`` ，
+但是URLpattern里面的匹配模式(pattern)却有些不一样。下面我们来详细介绍一下：
 
-* Django removes the slash from the front of every incoming URL before it
-  checks the URLpatterns. This means that our URLpattern doesn't include
-  the leading slash in ``/hello/``. (At first, this may seem unintuitive,
-  but this requirement simplifies things -- such as the inclusion of
-  URLconfs within other URLconfs, which we'll cover in Chapter 8.)
+* Django在检查URL模式之前，会移除每个URL最开始的斜杠。这意味着URLpattern并不包括 ``/hello`` 开头那个斜杠。(一开始，这可能不太直观，但是这样做简化了很多事情，我们会在 :doc: chapter08 里详细介绍。)
 
-* The pattern includes a caret (``^``) and a dollar sign (``$``). These are
-  regular expression characters that have a special meaning: the caret
-  means "require that the pattern matches the start of the string," and the
-  dollar sign means "require that the pattern matches the end of the
-  string."
+* 匹配模式里面包括了一个脱字符( ``^`` )和一个美元符( ``$`` )。这两个符号在正则表达式里面的有特别的意义： ``^`` 要求从字符串开头开始匹配， ``$`` 则是要求对字符串尾部进行匹配。
 
-  This concept is best explained by example. If we had instead used the
-  pattern ``'^hello/'`` (without a dollar sign at the end), then *any* URL
-  starting with ``/hello/`` would match, such as ``/hello/foo`` and
-  ``/hello/bar``, not just ``/hello/``. Similarly, if we had left off the
-  initial caret character (i.e., ``'hello/$'``), Django would match *any*
-  URL that ends with ``hello/``, such as ``/foo/bar/hello/``. If we had
-  simply used ``hello/``, without a caret *or* dollar sign, then any URL
-  containing ``hello/`` would match, such as ``/foo/hello/bar``. Thus, we
-  use both the caret and dollar sign to ensure that only the URL
-  ``/hello/`` matches -- nothing more, nothing less.
+  最好还是用实例来说明。如果我们不用尾部匹配符 ``$`` ，所有以 ``/hello/`` 开头的URL都可以匹配，比如
+  ``/hello/foo`` 或者 ``/hello/bar`` 和 ``/hello`` 。类似的，如果我们省掉头部匹配符
+  ``^`` ，Django会匹配所有以 ``hello/`` 结尾的URL，比如 ``/foo/bar/hello/`` 。如果我们同时省掉
+  这两个字符的话，只要包含了 ``hello/`` 的URL都将会匹配， 比如 ``/foo/hello/bar`` 。所以，加上
+  ``^`` 和 ``$`` 是为了保证只有 ``/hello/`` 匹配，不多也不少。
 
-  Most of your URLpatterns will start with carets and end with dollar
-  signs, but it's nice to have the flexibility to perform more
-  sophisticated matches.
+  大多数的URLpattern都会以一个脱字符( ``^`` )开头，以一个美元符( ``$`` )结尾。
+  但是拥有匹配复杂URL的灵活性会也很好。
+  
+  你也许会问，如果由人访问 ``/hello`` (尾部没有斜杠)会怎样，因为我们的URL模式要求结尾
+  有一个斜杠，这样这个URL并不匹配我们定义的模式。不过，默认情况下，一个没有以斜杠结尾的URL
+  找不到匹配的URLpattern的话，会被重定向(redirect)到一个添加了斜杠的相同URL去。(者是受Django
+  设置里面的 ``APPEND_SLASH`` 选项控制的，参见 附录D_ 。)
 
-  You may be wondering what happens if someone requests the URL ``/hello``
-  (that is, *without* a trailing slash). Because our URLpattern requires a
-  trailing slash, that URL would *not* match. However, by default, any
-  request to a URL that *doesn't* match a URLpattern and *doesn't* end with
-  a slash will be redirected to the same URL with a trailing slash. (This
-  is regulated by the ``APPEND_SLASH`` Django setting, which is covered in
-  Appendix D.)
+  如果你是喜欢所有的URL都以 ``/`` 结尾的人(Django开发者都喜欢这样)。你只需要在每个URL
+  后添加斜杠并且设置 ``APPEND_SLASH`` 为 ``True`` 。如果你更愿意不要结尾的那个斜杠，
+  或者根据每个URL的情况来决定的话，那么需要将 ``APPEND_SLASH`` 设置为 ``False`` ，
+  然后根据你的意愿来添加结尾的斜杠到你想要添加的URL上。
+ 
+另一个要注意的地方是。这个URLconf中我们是把 ``hello`` 这个view function直接作为一个对象传递的，而不是去调用它。
+这是Pyhton(作为动态语言)的一个重要特征，函数是一级对象(first-class objects)，你可以像
+传递其它变量一样传递一个函数。很酷吧？
 
-  If you're the type of person who likes all URLs to end with slashes
-  (which is the preference of Django's developers), all you'll need to do
-  is add a trailing slash to each URLpattern and leave ``APPEND_SLASH`` set
-  to ``True``. If you prefer your URLs *not* to have trailing slashes, or
-  if you want to decide it on a per-URL basis, set ``APPEND_SLASH`` to
-  ``False`` and put trailing slashes in your URLpatterns as you see fit.
-
-The other thing to note about this URLconf is that we've passed the
-``hello`` view function as an object without calling the function. This is a
-key feature of Python (and other dynamic languages): functions are first-class
-objects, which means you can pass them around just like any other variables.
-Cool stuff, eh?
-
-To test our changes to the URLconf, start the Django development server, as you
-did in Chapter 2, by running the command ``python manage.py runserver``. (If you
-left it running, that's fine, too. The development server automatically detects
-changes to your Python code and reloads as necessary, so you don't have to
-restart the server between changes.) The server is running at the address
-``http://127.0.0.1:8000/``, so open up a Web browser and go to
-``http://127.0.0.1:8000/hello/``. You should see the text "Hello world" -- the
-output of your Django view.
+要检查我们配置的URLconf的话，如同第二章一样， 用 ``python manage.py runserver``
+启动Django的开发服务器。(如果你还没有关掉之前启动的那个，就不用再启动一个了。Django开发
+服务器会自动检测到你做的更改，然后自动加载它们，不需要你去重启它。) 开发服务器会运行在
+``http://127.0.0.1:8000/`` ，打开一个浏览器，访问
+``http://127.0.0.1:8000/hello/`` 。你应该会看到你的Django视图输出的文本--“Hello world”。
 
 耶! 你用Django成功创建了你的第一个网页了。
 
 .. admonition:: 正则表达式
 
-    正则表达式(*Regular expressions* 或者 *regexes*) are a compact way of specifying
-    patterns in text. While Django URLconfs allow arbitrary regexes for
-    powerful URL matching, you'll probably only use a few regex symbols in
-    practice. Here's a selection of common symbols:
+    正则表达式(*Regular expressions* 或者 *regexes* )是通用的文本模式匹配方法。
+    Django的URLconf运行你使用任意的正则表达式来做URL匹配，不过实际情况中，你通常只需要使用到其中很少的一部分功能。下面是写基本的语法。
 
     ============  ==========================================================
     符号           匹配
@@ -859,3 +826,4 @@ separate the design of the page from the underlying code. We'll dive into
 Django's template engine in the next chapter `Chapter 4`_.
 
 .. _Chapter 4: chapter04.html
+.. _附录D: appendixD.html
