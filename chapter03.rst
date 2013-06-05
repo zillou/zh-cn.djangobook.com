@@ -384,13 +384,14 @@ Django会调用和这个URLpattern相关联的view function，并把当前的请
 * 首先，我们在文件顶端添加了一条语句 ``import datetime`` , 这样我们就可以计算日期了。
 
 * ``current_datetime`` 函数计算当前的日期和时间，以 ``datetime.datetime`` 的形式
-保存在 ``now`` 这个局部变量中。
+  保存在 ``now`` 这个局部变量中。
 
 * 函数的第二行，我们用Python的格式化字符串(format-string)构造了一段HTML。
-  字符串中的 ``%s`` 是一个占位符，字符串后面的百分号(%)表示用变量 ``now``的值代替前面字符串中的 ``%s`` 。
-	``now`` 是一个 ``datetime.datetime`` 而不是一个字符串， ``%s`` (格式化字符)会把它转换
-	``"2008-12-13 14:09:39.002731"`` 这样的字符串表现形式。所以，最后会输出
-	``"<html><body>It is now 2008-12-13 14:09:39.002731.</body></html>"`` 这样的HTML字符串。
+  字符串中的 ``%s`` 是一个占位符，字符串后面的百分号(%)表示用变量 ``now`` 的值代替前面
+  字符串中的 ``%s`` 。``now`` 是一个 ``datetime.datetime`` 而不是一个字符
+  串， ``%s`` (格式化字符)会把它转换 ``"2008-12-13 14:09:39.002731"``
+  这样的字符串表现形式。所以，最后会输出 ``"<html><body>It is now 2008-12-13 14:09:39.002731.</body></html>"``
+  这样的HTML字符串。
 
   我们现在的HTML是有错误的，我们这样做是为了保持例子的简短。
 
@@ -399,7 +400,7 @@ Django会调用和这个URLpattern相关联的view function，并把当前的请
 在 ``views.py`` 中添加视图之后，我们还要在 ``urls.py`` 中添加URLpattern来告诉Django由哪个URL来处理
 这个视图。用 ``/time`` 之类的字眼会比较容易理解：
 
-:
+::
 
     from django.conf.urls.defaults import patterns, include, url
     from mysite.views import hello, current_datetime
@@ -417,10 +418,10 @@ Django会调用和这个URLpattern相关联的view function，并把当前的请
 
 .. admonition:: Django中的时区
 
-    你看到的时间可能会和当前时间相差几个小时，这是因为Django是会处理时区的，Django中默认的
-		时区是 ``America/Chicago`` (因为必须有一个值，所以就默认设置为Django的诞生地的时区了)。
-		如果你是处在其他的时区，你需要在 ``settings.py`` 中修改这个值。请参考它里面的注释，以
-		获取最新世界时区列表。
+  你看到的时间可能会和当前时间相差几个小时，这是因为Django是会处理时区的，Django中默认的
+  时区是 ``America/Chicago`` (因为必须有一个值，所以就默认设置为Django的诞生地的时区了)。
+  如果你是处在其他的时区，你需要在 ``settings.py`` 中修改这个值。请参考它里面的注释，以
+  获取最新世界时区列表。
 
 URLconfs和松耦合
 ===========================
@@ -441,7 +442,7 @@ Django的URLconf就是松耦合的一个很好的例子，在一个Django程序�
 下面这个例子里，有两个URL都可以调用我们的 ``current_datetime`` 视图。这个一个故弄玄虚
 的例子，但是这个方法迟早用得上。
 
-:
+::
 
     urlpatterns = patterns('',
         url(r'^hello/$', hello),
@@ -464,7 +465,7 @@ URLconf和View是松耦合的，在本书中你会继续看到这一哲学。
 
 新手可能会用不同的视图函数来处理每个时间偏差量，会有这样的URL配置：
 
-:
+::
 
     urlpatterns = patterns('',
         url(r'^time/$', current_datetime),
@@ -481,20 +482,20 @@ URLpattern。我们需要在这里做一些抽象。
 
 .. admonition:: 关于漂亮URL的一点建议
 
-    如果你有其他Web平台的开发经验(比如PHP或Java)， 你可能会想：嘿！让我们用查询字符串参数
-		吧！像 ``/time/plus?hours=3`` 这样，里面的小时应该在查询字符串中被参数 ``hours``
-		指定(问号后面的部分)。
+  如果你有其他Web平台的开发经验(比如PHP或Java)， 你可能会想：嘿！让我们用查询字符串参数
+  吧！像 ``/time/plus?hours=3`` 这样，里面的小时应该在查询字符串中被参数 ``hours``
+  指定(问号后面的部分)。
 
-		你可以这样做(我们会在第七章讲到)，但是Django的一个核心理念是URL看起来必须漂亮。像
-		``/time/plus/3/`` 这样的URL更清晰，更简单，也更具可读性，可以很容易被大声念出来。
-		漂亮的URL就是高质量的Web应用的一个标志。
+  你可以这样做(我们会在第七章讲到)，但是Django的一个核心理念是URL看起来必须漂亮。像
+  ``/time/plus/3/`` 这样的URL更清晰，更简单，也更具可读性，可以很容易被大声念出来。
+  漂亮的URL就是高质量的Web应用的一个标志。
 
-		Django的URL配置可以使你很容易配置出漂亮的URL。
+  Django的URL配置可以使你很容易配置出漂亮的URL。
 
 那么，我们要怎样来处理任意小时的偏差呢？我们要用到通配符。我们前面有提到，一个URL模式就是一
 个正则表达式，因此，我们可以在这里用 ``\d+`` 来匹配一个以上的数字。
 
-:
+::
 
     urlpatterns = patterns('',
         # ...
@@ -509,12 +510,10 @@ URLpattern。我们需要在这里做一些抽象。
 
     url(r'^time/plus/\d{1,2}/$', hours_ahead),
 
-.. admonition:: 注意
+.. admonition::  注意
 
-    When building Web applications, it's always important to consider the most
-    outlandish data input possible, and decide whether or not the application
-    should support that input. We've curtailed the outlandishness here by
-    limiting the offset to 99 hours.
+  当我们编写Web应用的时候，尽可能考虑可能的数据输入是很重要的，然后决定哪些我们可以接受，
+  这里，我们就显示了99个小时的时间差。
 
 Now that we've designated a wildcard for the URL, we need a way of passing that
 wildcard data to the view function, so that we can use a single view function
