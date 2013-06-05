@@ -515,19 +515,17 @@ URLpattern。我们需要在这里做一些抽象。
   当我们编写Web应用的时候，尽可能考虑可能的数据输入是很重要的，然后决定哪些我们可以接受，
   这里，我们就显示了99个小时的时间差。
 
-Now that we've designated a wildcard for the URL, we need a way of passing that
-wildcard data to the view function, so that we can use a single view function
-for any arbitrary hour offset. We do this by placing parentheses around the
-data in the URLpattern that we want to save. In the case of our example, we
-want to save whatever number was entered in the URL, so let's put parentheses
-around the ``\d{1,2}``, like this::
+我们已经为我们的URL配置好了通配符，我们还需要把它的值传到view function里去，这样我们才能只用一个
+view function去处理任意的时间偏移数。我们要做的是在URLpattern里用括号把我们需要的数据括起来。
+我们这个例子里，我们需要那个数字作为参数，所以我们把 ``\d{1,2}`` 括起来：
+
+::
 
     url(r'^time/plus/(\d{1,2})/$', hours_ahead),
 
-If you're familiar with regular expressions, you'll be right at home here;
-we're using parentheses to *capture* data from the matched text.
+如果你熟悉正则表达式，我们这里就是用正则表达式的方式，用圆括号从文本里提取数据的。
 
-The final URLconf, including our previous two views, looks like this::
+这里是我们最终的URLconf::
 
     from django.conf.urls.defaults import *
     from mysite.views import hello, current_datetime, hours_ahead
@@ -538,11 +536,12 @@ The final URLconf, including our previous two views, looks like this::
         url(r'^time/plus/(\d{1,2})/$', hours_ahead),
     )
 
-With that taken care of, let's write the ``hours_ahead`` view.
+搞定这些后，让我们来写 ``hours_ahead`` 视图了。
 
-``hours_ahead`` is very similar to the ``current_datetime`` view we wrote
-earlier, with a key difference: it takes an extra argument, the number of hours
-of offset. Here's the view code::
+``hours_ahead`` 和前面那个 ``current_datetime`` 很相似。只有一点不同：它还接受一个参数，
+即偏移的小时数 ``offset`` 。 代码如下：
+
+::
 
     from django.http import Http404, HttpResponse
     import datetime
@@ -556,81 +555,50 @@ of offset. Here's the view code::
         html = "<html><body>In %s hour(s), it will be %s.</body></html>" % (offset, dt)
         return HttpResponse(html)
 
-Let's step through this code one line at a time:
+我们来逐行分析一下代码：
 
-* The view function, ``hours_ahead``, takes *two* parameters: ``request``
-  and ``offset``.
+* view function ``hours_ahead`` 接受两个参数， ``request`` 和 ``offset`` 。
 
-  * ``request`` is an ``HttpRequest`` object, just as in ``hello`` and
-    ``current_datetime``. We'll say it again: each view *always* takes an
-    ``HttpRequest`` object as its first parameter.
+  * ``request`` 是一个 ``HttpRequest`` 对象，和前面的 ``hello`` 和 ``current_datetime`` 一样。
+    再强调一次，一个view function必须以一个  ``HttpRequest`` 对象作为它的第一个参数。
+  * ``offset`` 是从URL中匹配出来的。如果请求的URL是 ``/time/plus/3/`` ，那么 ``offset`` 就会是字符串
+    ``'3'`` ；如果请求的URL是 ``/time/plus/21/`` ，那么 ``offset`` 就会是字符串
+    ``'21'`` 。请注意，这个捕获值永远是字符串类型，而不是整数类型，即便是这个字符串全部由数字构成（比如  ``'21'`` ）。
 
-  * ``offset`` is the string captured by the parentheses in the
-    URLpattern. For example, if the requested URL were ``/time/plus/3/``,
-    then ``offset`` would be the string ``'3'``. If the requested URL were
-    ``/time/plus/21/``, then ``offset`` would be the string ``'21'``. Note
-    that captured values will always be *strings*, not integers, even if
-    the string is composed of only digits, such as ``'21'``.
+    (更准确的讲，捕获值会是一个Unicode对象，而不是简单的Python字符串。但是目前我们不需要在意这点差别)
 
-    (Technically, captured values will always be *Unicode objects*, not
-    plain Python bytestrings, but don't worry about this distinction at
-    the moment.)
+    这里，我们把这个变量叫做 ``offset`` ，你也可以叫它任何名字。变量的名字是无关紧要的，只要
+    它符合Python的语法，只要它是这个view function的第二个参数，在 ``request`` 之后。（这里不用位置，而是用
+    关键字来定义它也是可以的，会在第八章介绍。）
 
-    We decided to call the variable ``offset``, but you can call it
-    whatever you'd like, as long as it's a valid Python identifier. The
-    variable name doesn't matter; all that matters is that it's the second
-    argument to the function, after ``request``. (It's also possible to
-    use keyword, rather than positional, arguments in an URLconf. We cover
-    that in Chapter 8.)
+* 在这个函数中，我们做的第一件是是在 ``offset`` 上调用 ``int()`` ，将它从字符串转换为一个整数。
 
-* The first thing we do within the function is call ``int()`` on ``offset``.
-  This converts the string value to an integer.
+  如果这个值不能被转换成整数，Python会抛出一个 ``ValueError`` 异常。（比如 ``int(foo)``）。
+  在本例中，如果我们遇到 ``ValueError`` 我们会抛出一个 ``django.http.Http404`` 的异常，
+  最终得到一个404“Page not found”错误。
 
-  Note that Python will raise a ``ValueError`` exception if you call
-  ``int()`` on a value that cannot be converted to an integer, such as the
-  string ``'foo'``. In this example, if we encounter the ``ValueError``, we
-  raise the exception ``django.http.Http404``, which, as you can imagine,
-  results in a 404 "Page not found" error.
+  精明的读者可能会问：我们在URLpattern的正则表达式中已经用了 ``(\d{1,2})`` 来约束它仅接受
+  数字了，怎么可能还会有出现 ``ValueError`` 的情况呢？ 捕获值不是只可能是由数字组成的吗？
+  答案是: 我们不会这么做，因为URLpattern提供的是“适度但有用”级别的输入校验。万一这个视图
+  函数被其它方式调用，我们仍需自行检查ValueError。 实践证明，在实现视图函数时，不臆测参
+  数值的做法是比较好的。 松散耦合，还记得么？
 
-  Astute readers will wonder: how could we ever reach the ``ValueError``
-  case, anyway, given that the regular expression in our URLpattern --
-  ``(\d{1,2})`` -- captures only digits, and therefore ``offset`` will only
-  ever be a string composed of digits? The answer is, we won't, because
-  the URLpattern provides a modest but useful level of input validation,
-  *but* we still check for the ``ValueError`` in case this view function
-  ever gets called in some other way. It's good practice to implement view
-  functions such that they don't make any assumptions about their
-  parameters. Loose coupling, remember?
+* 下一行，计算当前日期/时间，然后加上适当的小时数。 在 ``current_datetime`` 视图中，我们
+  已经见过 ``datetime.datetime.now()`` 。这里新的概念是执行日期/时间的算术操作。我们需要
+  创建一个 ``datetime.timedelta`` 对象和增加一个 ``datetime.datetime`` 对象。 结果保存在变量dt中。
 
-* In the next line of the function, we calculate the current date/time and
-  add the appropriate number of hours. We've already seen
-  ``datetime.datetime.now()`` from the ``current_datetime`` view; the new
-  concept here is that you can perform date/time arithmetic by creating a
-  ``datetime.timedelta`` object and adding to a ``datetime.datetime``
-  object. Our result is stored in the variable ``dt``.
+* 接着，我们构建这个view function的HTML输出。和我们在 ``current_datetime`` 里差不多，只是
+  这个格式化字符串中有两个变量了。因此，在字符串中有两个 ``%s`` 占位符，``%`` 号后面是一个要插入
+  的值的元组(tuple)。
 
-  This line also shows why we called ``int()`` on ``offset`` -- the
-  ``datetime.timedelta`` function requires the ``hours`` parameter to be an
-  integer.
+* 最后，返回一个HTML的 ``HttpResponse`` 。现在，这行代码已经毫不稀奇了。
 
-* Next, we construct the HTML output of this view function, just as we did
-  in ``current_datetime``. A small difference in this line from the previous
-  line is that it uses Python's format-string capability with *two* values,
-  not just one. Hence, there are two ``%s`` symbols in the string and a
-  tuple of values to insert: ``(offset, dt)``.
-
-* Finally, we return an ``HttpResponse`` of the HTML. By now, this is old
-  hat.
-
-With that view function and URLconf written, start the Django development server
-(if it's not already running), and visit ``http://127.0.0.1:8000/time/plus/3/``
-to verify it works. Then try ``http://127.0.0.1:8000/time/plus/5/``. Then
-``http://127.0.0.1:8000/time/plus/24/``. Finally, visit
-``http://127.0.0.1:8000/time/plus/100/`` to verify that the pattern in your
-URLconf only accepts one- or two-digit numbers; Django should display a "Page
-not found" error in this case, just as we saw in the section "A Quick Note
-About 404 Errors" earlier. The URL ``http://127.0.0.1:8000/time/plus/`` (with
-*no* hour designation) should also throw a 404.
+在完成视图函数和URL配置编写后，启动Django开发服务器，用浏览器访问 ``http://127.0.0.1:8000/time/plus/3/``
+来确认它工作正常。 然后是 ``http://127.0.0.1:8000/time/plus/5/`` 。再然后是
+``http://127.0.0.1:8000/time/plus/24/`` 。最后，访问 ``http://127.0.0.1:8000/time/plus/100/``
+来检验URL配置里设置的模式是否只 接受一个或两个数字；Django会显示一个 Page not found error 页面,
+和以前看到的 404 错误一样。 访问URL ``http://127.0.0.1:8000/time/plus/`` (没有 定义时间差) 也会抛
+出404错误。
 
 .. admonition:: 编码顺序
 
