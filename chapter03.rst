@@ -348,9 +348,10 @@ Django会调用和这个URLpattern相关联的view function，并把当前的请
 是有Django特性的代码，这样，在你学习Django的过程中，你也可以学到一些Python的知识，并用到其他的
 不用Django的Python项目中。)
 
-To make a Django view that displays the current date and time, then, we just
-need to hook this ``datetime.datetime.now()`` statement into a view and return
-an ``HttpResponse``. Here's how that looks::
+要想我们的Django视图显示当前的日期和时间，我们仅需把语句 ``datetime.datetime.now()`` 放到
+视图函数里面，然后返回一个 ``HttpResponse`` 。代码如下：
+
+::
 
     from django.http import HttpResponse
     import datetime
@@ -360,9 +361,10 @@ an ``HttpResponse``. Here's how that looks::
         html = "<html><body>It is now %s.</body></html>" % now
         return HttpResponse(html)
 
-As with our ``hello`` view function, this should live in ``views.py``. Note
-that we've hidden the ``hello`` function from this example for brevity, but for
-the sake of completeness, here's what the entire ``views.py`` looks like::
+和我们的 ``hello`` 视图一样，这个函数也保存在 ``views.py`` 当中。为了简洁，我们没有把
+``hello`` 函数列出来。下面是完整的 ``views.py`` 的内容：
+
+::
 
     from django.http import HttpResponse
     import datetime
@@ -375,39 +377,29 @@ the sake of completeness, here's what the entire ``views.py`` looks like::
         html = "<html><body>It is now %s.</body></html>" % now
         return HttpResponse(html)
 
-(From now on, we won't display previous code in code examples, except when
-necessary. You should be able to tell from context which parts of an example
-are new vs. old.)
+(以后，如无必要，我们就不再重复列出先前的代码。你应该能识别出哪些是先前的代码，哪些是新的代码)。
 
-Let's step through the changes we've made to ``views.py`` to accommodate
-the ``current_datetime`` view.
+我们来回顾一下刚刚添加 ``current_datetime`` 时做的更改。
 
-* We've added an ``import datetime`` to the top of the module, so we can
-  calculate dates.
+* 首先，我们在文件顶端添加了一条语句 ``import datetime`` , 这样我们就可以计算日期了。
 
-* The new ``current_datetime`` function calculates the current date and
-  time, as a ``datetime.datetime`` object, and stores that as the local
-  variable ``now``.
+* ``current_datetime`` 函数计算当前的日期和时间，以 ``datetime.datetime`` 的形式
+保存在 ``now`` 这个局部变量中。
 
-* The second line of code within the view constructs an HTML response using
-  Python's "format-string" capability. The ``%s`` within the string is a
-  placeholder, and the percent sign after the string means "Replace the
-  ``%s`` in the preceding string with the value of the variable ``now``."
-  The ``now`` variable is technically a ``datetime.datetime`` object, not
-  a string, but the ``%s`` format character converts it to its string
-  representation, which is something like ``"2008-12-13 14:09:39.002731"``.
-  This will result in an HTML string such as
-  ``"<html><body>It is now 2008-12-13 14:09:39.002731.</body></html>"``.
+* 函数的第二行，我们用Python的格式化字符串(format-string)构造了一段HTML。
+  字符串中的 ``%s`` 是一个占位符，字符串后面的百分号(%)表示用变量 ``now``的值代替前面字符串中的 ``%s`` 。
+	``now`` 是一个 ``datetime.datetime`` 而不是一个字符串， ``%s`` (格式化字符)会把它转换
+	``"2008-12-13 14:09:39.002731"`` 这样的字符串表现形式。所以，最后会输出
+	``"<html><body>It is now 2008-12-13 14:09:39.002731.</body></html>"`` 这样的HTML字符串。
 
-  (Yes, our HTML is invalid, but we're trying to keep the example simple
-  and short.)
+  我们现在的HTML是有错误的，我们这样做是为了保持例子的简短。
 
-* Finally, the view returns an ``HttpResponse`` object that contains the
-  generated response -- just as we did in ``hello``.
+* 最后，我们的视图和刚刚的 ``hello`` 视图一样返回一个 ``HttpResponse`` 对象，包含了刚刚生成的响应。
 
-After adding that to ``views.py``, add the URLpattern to ``urls.py`` to tell
-Django which URL should handle this view. Something like ``/time/`` would make
-sense::
+在 ``views.py`` 中添加视图之后，我们还要在 ``urls.py`` 中添加URLpattern来告诉Django由哪个URL来处理
+这个视图。用 ``/time`` 之类的字眼会比较容易理解：
+
+:
 
     from django.conf.urls.defaults import patterns, include, url
     from mysite.views import hello, current_datetime
@@ -417,50 +409,39 @@ sense::
         url(r'^time/$', current_datetime),
     )
 
-We've made two changes here. First, we imported the ``current_datetime``
-function at the top. Second, and more importantly, we added a URLpattern
-mapping the URL ``/time/`` to that new view. Getting the hang of this?
+这里，我们修改了两个地方，首先，在顶部导入了 ``current_datetime`` 函数。 然后，更重要的一步是我们
+添加了一个URL ``/time`` 关联到这个新视图。理解了吗？
 
-With the view written and URLconf updated, fire up the ``runserver`` and visit
-``http://127.0.0.1:8000/time/`` in your browser. You should see the current
-date and time.
+写好了视图，添加了URLpattern，现在运行 ``runserver`` 并访问在浏览器里面访问
+``http://127.0.0.1:8000/time/`` ，你将会看到当前的时间和日期。
 
-.. admonition:: Django's Time Zone
+.. admonition:: Django中的时区
 
-    Depending on your computer, the date and time may be a few hours off.
-    That's because Django is time zone-aware and defaults to the
-    ``America/Chicago`` time zone. (It has to default to *something*, and that's
-    the time zone where the original developers live.) If you live elsewhere,
-    you'll want to change it in ``settings.py``. See the comment in that file
-    for a link to an up-to-date list of worldwide time zone options.
+    你看到的时间可能会和当前时间相差几个小时，这是因为Django是会处理时区的，Django中默认的
+		时区是 ``America/Chicago`` (因为必须有一个值，所以就默认设置为Django的诞生地的时区了)。
+		如果你是处在其他的时区，你需要在 ``settings.py`` 中修改这个值。请参考它里面的注释，以
+		获取最新世界时区列表。
 
-URLconfs and Loose Coupling
+URLconfs和松耦合
 ===========================
 
-Now's a good time to highlight a key philosophy behind URLconfs and behind
-Django in general: the principle of *loose coupling*. Simply put, loose coupling
-is a software-development approach that values the importance of making pieces
-interchangeable. If two pieces of code are loosely coupled, then changes made to
-one of the pieces will have little or no effect on the other.
+现在我们该来讲讲Django中URLconf背后的哲学：松耦合原则。简单说，松耦合是一个重要的保证不同部
+分互换性的软件开发方法。如果软件中的两部分是松耦合的，其中一部分的改动对另一部分的影响很小
+甚至没有影响。
 
-Django's URLconfs are a good example of this principle in practice. In a Django
-web application, the URL definitions and the view functions they call are
-loosely coupled; that is, the decision of what the URL should be for a given
-function, and the implementation of the function itself, reside in two separate
-places. This lets you switch out one piece without affecting the other.
+Django的URLconf就是松耦合的一个很好的例子，在一个Django程序中，URL的定义和它要调用的视图就
+是松耦合的。换句话说就是，决定URL返回哪个视图函数和实现这个视图函数是在不同的地方。这使得
+你可以修改一块而不会影响另一块。
 
-For example, consider our ``current_datetime`` view. If we wanted to change the
-URL for the application -- say, to move it from ``/time/`` to
-``/current-time/`` -- we could make a quick change to the URLconf, without
-having to worry about the view itself. Similarly, if we wanted to change the
-view function -- altering its logic somehow -- we could do that without
-affecting the URL to which the function is bound.
+比如我们的 ``current_datetime`` 视图。如果我们要把它的URL从 ``/time/`` 改成
+``/current-time/`` 。 我们只需要简单该它的URLconf就可以了，而不需要去管视图函数的实现。
+同样的，如果我们想修改这个函数的内部实现，也不用担心会影响对应的URL。
 
-Furthermore, if we wanted to expose the current-date functionality at
-*several* URLs, we could easily take care of that by editing the URLconf,
-without having to touch the view code. In this example, our
-``current_datetime`` is available at two URLs. It's a contrived example, but
-this technique can come in handy::
+此外，如果我们想要多个URL都可以访问这个函数，我们也只需要修改URL配置而不用去动视图的代码。
+下面这个例子里，有两个URL都可以调用我们的 ``current_datetime`` 视图。这个一个故弄玄虚
+的例子，但是这个方法迟早用得上。
+
+:
 
     urlpatterns = patterns('',
         url(r'^hello/$', hello),
@@ -468,27 +449,22 @@ this technique can come in handy::
         url(r'^another-time-page/$', current_datetime),
     )
 
-URLconfs and views are loose coupling in action. We'll continue to point out
-examples of this important philosophy throughout this book.
+URLconf和View是松耦合的，在本书中你会继续看到这一哲学。
 
-Your Third View: Dynamic URLs
-=============================
+第三个视图：动态URL
+==========================
 
-In our ``current_datetime`` view, the contents of the page -- the current
-date/time -- were dynamic, but the URL (``/time/``) was static. In most dynamic
-Web applications, though, a URL contains parameters that influence the output
-of the page. For example, an online bookstore might give each book its own URL,
-like ``/books/243/`` and ``/books/81196/``.
+在我们的上一个视图 ``current_datetime`` ，尽管内容是动态的，但是URL (``/time/``) 是静态的。
+在大多数动态的Web应用程序中，URL通常可以包含一些参数可以控制页面的输出。比如一个在线书店会
+给每本书分配一个URL，如 ``/books/243/`` ， ``/books/81196/`` 这样。
 
-Let's create a third view that displays the current date and time offset by a
-certain number of hours. The goal is to craft a site in such a way that the page
-``/time/plus/1/`` displays the date/time one hour into the future, the page
-``/time/plus/2/`` displays the date/time two hours into the future, the page
-``/time/plus/3/`` displays the date/time three hours into the future, and so
-on.
+那让我们来创建我们的第三个视图，显示当前时间加上一个偏移量的时间。我们的目标是
+``/time/plus/1/`` 显示当前时间+1个小时的页面， ``/time/plus/2/`` 显示当前时间+2个小时的
+页面， ``/time/plus/3/`` 显示+3个小时的页面，以此类推。
 
-A novice might think to code a separate view function for each hour offset,
-which might result in a URLconf like this::
+新手可能会用不同的视图函数来处理每个时间偏差量，会有这样的URL配置：
+
+:
 
     urlpatterns = patterns('',
         url(r'^time/$', current_datetime),
@@ -498,34 +474,27 @@ which might result in a URLconf like this::
         url(r'^time/plus/4/$', four_hours_ahead),
     )
 
-Clearly, this line of thought is flawed. Not only would this result in redundant
-view functions, but also the application is fundamentally limited to supporting
-only the predefined hour ranges -- one, two, three or four hours. If we decided
-to create a page that displayed the time *five* hours into the future, we'd
-have to create a separate view and URLconf line for that, furthering the
-duplication. We need to do some abstraction here.
+显然，这样的处理是不妥当的，不但需要写很多的视图，而且我们的程序还只能处理那些已经被定义的时
+间段。如果哪天我们要再加一个显示+5小时的视图，我们又得去创建一个view function和配置一条
+URLpattern。我们需要在这里做一些抽象。
 
-.. admonition:: A Word About Pretty URLs
 
-    If you're experienced in another Web development platform, such as PHP or
-    Java, you may be thinking, "Hey, let's use a query string parameter!" --
-    something like ``/time/plus?hours=3``, in which the hours would be
-    designated by the ``hours`` parameter in the URL's query string (the part
-    after the ``?``).
+.. admonition:: 关于漂亮URL的一点建议
 
-    You *can* do that with Django (and we'll tell you how in Chapter 7), but
-    one of Django's core philosophies is that URLs should be beautiful. The URL
-    ``/time/plus/3/`` is far cleaner, simpler, more readable, easier to recite
-    to somebody aloud and . . . just plain prettier than its query string
-    counterpart. Pretty URLs are a characteristic of a quality Web application.
+    如果你有其他Web平台的开发经验(比如PHP或Java)， 你可能会想：嘿！让我们用查询字符串参数
+		吧！像 ``/time/plus?hours=3`` 这样，里面的小时应该在查询字符串中被参数 ``hours``
+		指定(问号后面的部分)。
 
-    Django's URLconf system encourages pretty URLs by making it easier to use
-    pretty URLs than *not* to.
+		你可以这样做(我们会在第七章讲到)，但是Django的一个核心理念是URL看起来必须漂亮。像
+		``/time/plus/3/`` 这样的URL更清晰，更简单，也更具可读性，可以很容易被大声念出来。
+		漂亮的URL就是高质量的Web应用的一个标志。
 
-How, then do we design our application to handle arbitrary hour offsets? The
-key is to use *wildcard URLpatterns*. As we mentioned previously, a URLpattern
-is a regular expression; hence, we can use the regular expression pattern
-``\d+`` to match one or more digits::
+		Django的URL配置可以使你很容易配置出漂亮的URL。
+
+那么，我们要怎样来处理任意小时的偏差呢？我们要用到通配符。我们前面有提到，一个URL模式就是一
+个正则表达式，因此，我们可以在这里用 ``\d+`` 来匹配一个以上的数字。
+
+:
 
     urlpatterns = patterns('',
         # ...
@@ -533,18 +502,14 @@ is a regular expression; hence, we can use the regular expression pattern
         # ...
     )
 
-(We're using the ``# ...`` to imply there might be other URLpatterns that we
-trimmed from this example.)
+(这里我们用 ``# ...`` 表示省略的了其他的URL模式。)
 
-This new URLpattern will match any URL such as ``/time/plus/2/``,
-``/time/plus/25/``, or even ``/time/plus/100000000000/``. Come to think of it,
-let's limit it so that the maximum allowed offset is 99 hours. That means we
-want to allow either one- or two-digit numbers -- and in regular expression
-syntax, that translates into ``\d{1,2}``::
+这个URLpattern可以匹配任意类似 ``/time/plus/2/`` ， ``/time/plus/25/`` 甚至是  ``/time/plus/100000000000/`` 这样的URL。更进一步，让我们把它限制在最大允许99个小时，这样
+我们就只允许一个或两个数字，正则表达式的语法是 ``\d{1,2}``::
 
     url(r'^time/plus/\d{1,2}/$', hours_ahead),
 
-.. note::
+.. admonition:: 注意
 
     When building Web applications, it's always important to consider the most
     outlandish data input possible, and decide whether or not the application
@@ -793,7 +758,7 @@ described earlier in this chapter, work the same way.)
 本章里，我们编写了view function，把HTML直接hard-code在Python代码里了。我们这样做是为了
 演示方便，但是在实际情况中，一般这样的方式都不好。
 
-Djano提供了一个简单但强大的模板引擎，可以让你将页面的设计和底层的代码分隔开来。下一章_ ，我们就将
+Djano提供了一个简单但强大的模板引擎，可以让你将页面的设计和底层的代码分隔开来。`下一章`_ ，我们就将
 深入Django的模板引擎。
 
 .. _下一章: chapter04.html
