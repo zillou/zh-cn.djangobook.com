@@ -648,56 +648,38 @@ Django漂亮的出错页面
 * 在页面顶部，你会得到关键的异常信息：异常类型，造成异常的参数(如本例中的
   ``"unsupported type"`` 信息)，异常发生在哪个文件，出错的行号等等。
 
-* Under the key exception information, the page displays the full Python
-  traceback for this exception. This is similar to the standard traceback
-  you get in Python's command-line interpreter, except it's more
-  interactive. For each level ("frame") in the stack, Django displays the
-  name of the file, the function/method name, the line number, and the
-  source code of that line.
+* 在关键异常下方，页面上列出了完整的Python追踪信息(traceback)。这些信息和你在
+  Python命令行解释器中获得的类似，只是多了一些交互性。在追踪信息的每一级，Django会
+  显示文件的名字，方法名，以及行号和那一行的代码。
 
-  Click the line of source code (in dark gray), and you'll see several
-  lines from before and after the erroneous line, to give you context.
+  点击改行代码(深灰色显示的)，你还可以看到出错行的前后几行。
 
-  Click "Local vars" under any frame in the stack to view a table of all
-  local variables and their values, in that frame, at the exact point in the
-  code at which the exception was raised. This debugging information can be
-  a great help.
+  点击“Local vars”，你还可以看到一个表格，有当前视图抛出异常的时候所有的局部变量和他们的值。
+  这些信息在调试的时候非常有用。
 
-* Note the "Switch to copy-and-paste view" text under the "Traceback"
-  header. Click those words, and the traceback will switch to a alternate
-  version that can be easily copied and pasted. Use this when you want to
-  share your exception traceback with others to get technical support --
-  such as the kind folks in the Django IRC chat room or on the Django users
-  mailing list.
+* 注意“Traceback”下面有一个“Switch to copy-and-paste view”的文字。点击它，追踪
+  信息会以另外一种方便复制粘贴的方式显示。当你想要把这些异常信息分享给别人以获取技术支持
+  的时候(比如在DjangoIRC聊天室或者Django用户邮件列表中)，都可以用它。
 
-  Underneath, the "Share this traceback on a public Web site" button will
-  do this work for you in just one click. Click it to post the traceback to
-  http://www.dpaste.com/, where you'll get a distinct URL that you can
-  share with other people.
+  下面还有个“Share this traceback on a public Web site”按钮，可以让你一键完成这个工作，
+  它会把错误信息发布到 http://www.dpaste.com/ ，你可以把你得到一个唯一的URL分享给别人。
 
-* Next, the "Request information" section includes a wealth of information
-  about the incoming Web request that spawned the error: GET and POST
-  information, cookie values, and meta information, such as CGI headers.
-  Appendix G has a complete reference of all the information a request
-  object contains.
+* 再下面的“Request information”部分包括了有关产生错误的Web请求的大量信息：GET和POST，
+  cookie值和一些元数据(比如CGI头)。`Appendix G`_ 有Request对象的完整参考。
 
-  Below the "Request information" section, the "Settings" section lists all
-  of the settings for this particular Django installation. (We've already
-  mentioned ``ROOT_URLCONF``, and we'll show you various Django settings
-  throughout the book. All the available settings are covered in detail in
-  Appendix D.)
+  在Request信息下面，有“Settings”的部分列出了当前Django程序的所有设置信息。（我们
+  已经提过 ``ROOT_URLCONF`` ，本书还会介绍接Django其他的设置。附录D会介绍
+  所有可用的设置。）
 
-The Django error page is capable of displaying more information in certain
-special cases, such as the case of template syntax errors. We'll get to those
-later, when we discuss the Django template system. For now, uncomment the
-``offset = int(offset)`` lines to get the view function working properly again.
+在某些情况下，Django的错误页面还会显示更多的信息，比如模板的语法错误。我们稍后就介绍Django
+的模板系统，我们就会遇到这种错误。现在，取消 ``offset = int(offset)`` 这行的注释，让
+它重新运作起来。
 
-Are you the type of programmer who likes to debug with the help of carefully
-placed ``print`` statements? You can use the Django error page to do so -- just
-without the ``print`` statements. At any point in your view, temporarily insert
-an ``assert False`` to trigger the error page. Then, you can view the local
-variables and state of the program. Here's an example, using the
-``hours_ahead`` view::
+不知道你时不时那种在程序里面仔细地添加一些 ``print`` 语句来帮助调试的程序员？你其实可以用
+Django出错页来做这些，而不用 ``print`` 语句。 你可以在视图的任何位置，临时插入一个 ``assert False``
+来触发出错页。这样你就可以看到局部变量的值和程序的状态了。请看这个 ``hours_ahead`` 的例子：
+
+::
 
     def hours_ahead(request, offset):
         try:
@@ -709,15 +691,12 @@ variables and state of the program. Here's an example, using the
         html = "<html><body>In %s hour(s), it will be %s.</body></html>" % (offset, dt)
         return HttpResponse(html)
 
-Finally, it's obvious that much of this information is sensitive -- it exposes
-the innards of your Python code and Django configuration -- and it would be
-foolish to show this information on the public Internet. A malicious person
-could use it to attempt to reverse-engineer your Web application and do nasty
-things. For that reason, the Django error page is only displayed when your
-Django project is in debug mode. We'll explain how to deactivate debug mode
-in Chapter 12. For now, just know that every Django project is in debug mode
-automatically when you start it. (Sound familiar? The "Page not found" errors,
-described earlier in this chapter, work the same way.)
+显然，这些信息里面很多都是敏感的，它会暴露你Python代码的内部结构以及Django配置，在Internet
+上公开这些信息是很不明智的。不怀好意的人会尝试用逆向工程去破坏你的程序，做些下流的事情。
+所以，Django出错信息仅在debug模式下才会出现。我们会在12章介绍如果禁用debug模式，现在，你只
+需要知道每个新的Django项目都默认运行在debug模式下。(听起来很熟悉，对，这就和前面
+的“Page not found”错误一样。)
+
 
 下一章
 ============
@@ -725,8 +704,9 @@ described earlier in this chapter, work the same way.)
 本章里，我们编写了view function，把HTML直接hard-code在Python代码里了。我们这样做是为了
 演示方便，但是在实际情况中，一般这样的方式都不好。
 
-Djano提供了一个简单但强大的模板引擎，可以让你将页面的设计和底层的代码分隔开来。`下一章`_ ，我们就将
-深入Django的模板引擎。
+Djano提供了一个简单但强大的模板引擎，可以让你将页面的设计和底层的代码分隔开来。`下一章`_
+，我们就将深入Django的模板引擎。
 
 .. _下一章: chapter04.html
 .. _附录D: appendixD.html
+.. _`Appendix G`: appendixG.html
