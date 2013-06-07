@@ -1,91 +1,78 @@
 ===================
-Chapter 15: Caching
+第十五章：缓存机制
 ===================
 
-A fundamental trade-off in dynamic Web sites is, well, they're dynamic. Each
-time a user requests a page, the Web server makes all sorts of calculations --
-from database queries to template rendering to business logic -- to create the
-page that your site's visitor sees. This is a lot more expensive, from a
-processing-overhead perspective, than your standard
-read-a-file-off-the-filesystem server arrangement.
+动态网站最基本的一个问题是：它们是动态的。每一次用户访问一个页面，服务器都要执行一系列的计算来生成
+用户想要的页面，如查询数据库，填充模板，以及处理业务逻辑。从处理器资源的角度来看，这比传统只需要读取
+文件系统中文件的静态网站要昂贵多了。
 
-For most Web applications, this overhead isn't a big deal. Most Web
-applications aren't washingtonpost.com or slashdot.org; they're simply small-
-to medium-sized sites with so-so traffic. But for medium- to high-traffic
-sites, it's essential to cut as much overhead as possible.
+对于大多数的Web应用来说，过载并不是大问题。大多数的Web应用并不是washingtonpost.com或者slashdot.org，
+多数网站通常都是些很简单的中小规模的站点，流量也不大。但是对于中等或更大流量的网站来说，即可能解决过载问题
+是非常必要的。
 
-That's where caching comes in.
+这就需要用到缓存了。
 
-To cache something is to save the result of an expensive calculation so that
-you don't have to perform the calculation next time. Here's some pseudocode
-explaining how this would work for a dynamically generated Web page::
+缓存是将一些耗时的计算结果保存起来，避免下次重复计算。下面的伪代码演示了如何对动态页面的结果进行缓存。
 
-    given a URL, try finding that page in the cache
-    if the page is in the cache:
-        return the cached page
-    else:
-        generate the page
-        save the generated page in the cache (for next time)
-        return the generated page
+::
 
-Django comes with a robust cache system that lets you save dynamic pages so
-they don't have to be calculated for each request. For convenience, Django
-offers different levels of cache granularity: You can cache the output of
-specific views, you can cache only the pieces that are difficult to produce, or
-you can cache your entire site.
+    得到一个URL请求，尝试在cache里面寻找请求的页面
+    如果 页面在cache里:
+        返回页面
+    否则:
+        生成页面
+        保存页面到cache
+        返回页面
 
-Django also works well with "upstream" caches, such as Squid
-(http://www.squid-cache.org/) and browser-based caches. These are the types of
-caches that you don't directly control but to which you can provide hints (via
-HTTP headers) about which parts of your site should be cached, and how.
+Django提供了一个稳定的缓存系统让你缓存动态页面的结果，这样下次再有请求这个页面服务器就不需要再
+重复计算。Django还提供了不同粒度的缓存：你可以缓存特定的视图，也可以只缓存某个耗时计算的部分，还
+可以缓存整个网站。
 
-Setting Up the Cache
+
+Django和“上游”缓存也可以很好工作。比如Squid(http://www.squid-cache.org/)或者基于浏览器的缓存机制。
+这些类型的缓存你不能直接控制，但是你可以提供关于你的网站哪些部分需要被缓存以及如何缓存的线索(通过HTTP header)。
+
+设置缓存系统
 ====================
 
-The cache system requires a small amount of setup. Namely, you have to tell it
-where your cached data should live -- whether in a database, on the filesystem
-or directly in memory. This is an important decision that affects your cache's
-performance; yes, some cache types are faster than others.
+设置缓存系统只需要简单几步。你需要指定你的缓存数据应该放在什么地方，是在数据库中，还是在文件系统里，
+或者是直接缓存在内存中。这个很重要，它会决定你的缓存系统的性能，有些类型的缓存要比其他的快。
 
-Your cache preference goes in the ``CACHE_BACKEND`` setting in your settings
-file. Here's an explanation of all available values for ``CACHE_BACKEND``.
+缓存的设置是在配置文件的 ``CACHE_BACKEND`` 中，下面会分别说明 ``CACHE_BACKEND`` 每个可用
+的值：
+
 
 Memcached
----------
+-----------
 
-By far the fastest, most efficient type of cache available to Django, Memcached
-is an entirely memory-based cache framework originally developed to handle high
-loads at LiveJournal.com and subsequently open-sourced by Danga Interactive.
-It's used by sites such as Facebook and Wikipedia to reduce database access and
-dramatically increase site performance.
+Memcached是目前Django中最快，最高效的缓存机制。Memcached是完全基于内存的缓存框架，最初是被开发
+来处理LiveJournal.com的高负荷，随后Danga Interactive公司将其开源。它被用在一些如Facebook和
+维基百科这样的网站上用来减少对数据库的查询，大幅提高网站性能。
 
-Memcached is available for free at http://danga.com/memcached/ . It runs as a
-daemon and is allotted a specified amount of RAM. All it does is provide an
-fast interface for adding, retrieving and deleting arbitrary data in the cache.
-All data is stored directly in memory, so there's no overhead of database or
-filesystem usage.
+Memcached可以从 http://danga.com/memcached/ 免费获得。它会以一个守护进程的方式运行，并且会
+占用一定量的内存。它只是提供了如果添加，检索和删除缓存中任意缓存数据的高速接口。所有这些数据都存在内
+存中，所以不会有数据库或者查询文件系统的开销。
 
-After installing Memcached itself, you'll need to install the Memcached Python
-bindings, which are not bundled with Django directly. Two versions of this are
-available. Choose and install *one* of the following modules:
+安装Memcached本身之外，你要好安装Memcached的Python客户端(binding)，它没有直接包含在Django中。
+有两个版本可供选择，安装其中的一个即可：
 
-* The fastest available option is a module called ``cmemcache``, available
-  at http://gijsbert.org/cmemcache/ .
+* 最快的是 ``cmemcache`` ，可以在 http://gijsbert.org/cmemcache/ 获得。
 
-* If you can't install ``cmemcache``, you can install ``python-memcached``,
-  available at ftp://ftp.tummy.com/pub/python-memcached/ . If that URL is
-  no longer valid, just go to the Memcached Web site
-  (http://www.danga.com/memcached/) and get the Python bindings from the
-  "Client APIs" section.
+* 如果你无法安装 ``cmemcache`` ，你可以安装 ``python-memcached`` 。可以从 ftp://ftp.tummy.com/pub/python-memcached/
+  获得。如果这个地址失效的话，请到Memcached的官方网站 (http://www.danga.com/memcached/) 上，从
+  “Client APIs”里面下载Python的客户端。
 
-To use Memcached with Django, set ``CACHE_BACKEND`` to
-``memcached://ip:port/``, where ``ip`` is the IP address of the Memcached
-daemon and ``port`` is the port on which Memcached is running.
+要在Django中使用Memcached，设置 ``CACHE_BACKEND`` 为 ``memcached://ip:port/`` ，这里的 ``ip`` 是
+你的Memcached守护进程的IP， ``port`` 是Memcached运行的端口。
 
-In this example, Memcached is running on localhost (127.0.0.1) port 11211::
+比如，Memcached运行在本地(127.0.0.1)的11211端口，``CACHE_BACKEND`` 应为：
+
+::
 
     CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
 
+Memcached有一个很强大的功能是它可以在多个服务器之间分享缓存。你可以在几台机器上同时运行 Memcached
+进程，
 One excellent feature of Memcached is its ability to share cache over multiple
 servers. This means you can run Memcached daemons on multiple machines, and the
 program will treat the group of machines as a *single* cache, without the need

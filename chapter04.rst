@@ -1,41 +1,34 @@
 ====================
-Chapter 4: Templates
+第四章：模板
 ====================
 
-In the previous chapter, you may have noticed something peculiar in how we
-returned the text in our example views. Namely, the HTML was hard-coded directly
-in our Python code, like this::
+在上一章里，你也许注意到了我们的示例视图中返回文本的方式有点儿古怪，我们直接把HTML硬写在
+(hard-coded)Python代码中：
+
+::
 
     def current_datetime(request):
         now = datetime.datetime.now()
         html = "<html><body>It is now %s.</body></html>" % now
         return HttpResponse(html)
 
-Although this technique was convenient for the purpose of explaining how views
-work, it's not a good idea to hard-code HTML directly in your views. Here's
-why:
+尽管这样做便于解释视图是如果工作的。但是直接将HTML hard code在视图里可不是一个好办法。
+让我们来看下为什么：
 
-* Any change to the design of the page requires a change to
-  the Python code. The design of a site tends to change far more frequently
-  than the underlying Python code, so it would be convenient if
-  the design could change without needing to modify the Python code.
+* 对页面做任何的设计都需要去改动Python代码。站点设计上的修改往往比底层Python代码的改动频
+  繁得多。因此，如果可以在不影响底层代码的情况下改动设计会方便得多。
 
-* Writing Python code and designing HTML are two different disciplines, and
-  most professional Web development environments split these
-  responsibilities between separate people (or even separate departments).
-  Designers and HTML/CSS coders shouldn't be required to edit Python code
-  to get their job done.
+* 编写Python代码和HTML的设计是两项很不相同的工作，在大多数情况下，这两项任何会被分给不同
+  的人，甚至是不同的部门去完成。设计师和HTML/CSS程序员不需要懂得怎么去编写Python代码来完
+  成他们的工作。
 
-* It's most efficient if programmers can work on Python code and designers
-  can work on templates at the same time, rather than one person waiting
-  for the other to finish editing a single file that contains both Python
-  and HTML.
+* 程序员编写Python代码和设计师们也设计模板这两项工作可以同事进行效率是最高的，远胜于
+  一个人等着另一个人完成那个既包含Python又包含HTML的文件。
 
-For these reasons, it's much cleaner and more maintainable to separate the
-design of the page from the Python code itself. We can do this with Django's
-*template system*, which we discuss in this chapter.
+鉴于这些原因，将页面的设计和Python代码分离会更有助于保持代码的整洁和可维护性。这可以借助
+Django的模板系统来实现，本章正是要讨论这个问题。
 
-Template System Basics
+模板系统基础
 ======================
 
 A Django template is a string of text that is intended to separate the
