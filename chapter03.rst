@@ -193,7 +193,7 @@ URL和处理这个URL请求的代码的映射关系。默认情况下，URLconf�
   然后根据你的意愿来添加结尾的斜杠到你想要添加的URL上。
 
 另一个要注意的地方是。这个URLconf中我们是把 ``hello`` 这个view function直接作为一个对象传递的，而不是去调用它。
-这是Pyhton(作为动态语言)的一个重要特征，函数是一级对象(first-class objects)，你可以像
+这是Python(作为动态语言)的一个重要特征，函数是一级对象(first-class objects)，你可以像
 传递其它变量一样传递一个函数。很酷吧？
 
 要检查我们配置的URLconf的话，如同第二章一样， 用 ``python manage.py runserver``
@@ -305,7 +305,7 @@ Django会调用和这个URLpattern相关联的view function，并把当前的请
 传到view function的第一个参数。(稍后我们会介绍 ``HttpRequest`` 的标准。)
 
 正如我们的第一个例子一样，一个view function必须返回一个 ``HttpResponse`` 对象。剩下的事情就由Django
-来完成，Django会把这个Pythong对象转换成合适的Web响应，设置合适的HTTP头部以及内容(比如网页的内容)。
+来完成，Django会把这个Python对象转换成合适的Web响应，设置合适的HTTP头部以及内容(比如网页的内容)。
 
 总结一下：
 
